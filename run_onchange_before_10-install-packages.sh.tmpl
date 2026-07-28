@@ -1,6 +1,6 @@
 {{- $installPackages := index . "installPackages" | default false -}}
 {{- $workstation := index . "workstation" | default false -}}
-{{- if and (ne .chezmoi.os "windows") $installPackages }}
+{{- if and (ne .chezmoi.os "windows") $installPackages -}}
 #!/bin/sh
 set -eu
 
