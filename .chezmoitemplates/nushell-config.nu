@@ -141,6 +141,7 @@ alias capply = chezmoi apply
 alias cdiff = chezmoi diff
 alias cupdate = chezmoi update
 alias cstatus = chezmoi status
+alias cconfigure = chezmoi init --prompt
 
 {{ template "nushell-compat.nu" . }}
 

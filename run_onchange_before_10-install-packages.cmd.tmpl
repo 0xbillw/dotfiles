@@ -1,8 +1,13 @@
 {{- $installPackages := index . "installPackages" | default false -}}
 {{- $workstation := index . "workstation" | default false -}}
-{{- if and (eq .chezmoi.os "windows") $installPackages }}
+{{- if eq .chezmoi.os "windows" }}
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+
+{{- if not $installPackages }}
+echo Automatic package installation is disabled; run "chezmoi init --prompt" to change this machine option.
+exit /b 0
+{{- end }}
 
 where winget.exe >nul 2>nul
 if errorlevel 1 (
