@@ -1,0 +1,45 @@
+{{- $installPackages := index . "installPackages" | default false -}}
+{{- $workstation := index . "workstation" | default false -}}
+{{- if and (ne .chezmoi.os "windows") $installPackages }}
+#!/bin/sh
+set -eu
+
+if command -v brew >/dev/null 2>&1; then
+    brew_bin="$(command -v brew)"
+elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    brew_bin=/home/linuxbrew/.linuxbrew/bin/brew
+elif [ -x "$HOME/.linuxbrew/bin/brew" ]; then
+    brew_bin="$HOME/.linuxbrew/bin/brew"
+else
+    echo "Installing Homebrew for cross-platform package management..."
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "curl is required to bootstrap Homebrew." >&2
+        exit 1
+    fi
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if [ -x /opt/homebrew/bin/brew ]; then
+        brew_bin=/opt/homebrew/bin/brew
+    elif [ -x /usr/local/bin/brew ]; then
+        brew_bin=/usr/local/bin/brew
+    elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+        brew_bin=/home/linuxbrew/.linuxbrew/bin/brew
+    elif [ -x "$HOME/.linuxbrew/bin/brew" ]; then
+        brew_bin="$HOME/.linuxbrew/bin/brew"
+    else
+        echo "Homebrew installation completed but brew could not be located." >&2
+        exit 1
+    fi
+fi
+
+eval "$("$brew_bin" shellenv)"
+"$brew_bin" update
+"$brew_bin" install nushell helix zellij starship zoxide fzf
+
+{{- if and (eq .chezmoi.os "darwin") $workstation }}
+"$brew_bin" install --cask wezterm font-jetbrains-mono-nerd-font
+{{- end }}
+
+{{- if and (eq .chezmoi.os "linux") $workstation }}
+echo "Linux workstation note: install WezTerm and JetBrainsMono Nerd Font using your distribution's packages." >&2
+{{- end }}
+{{- end }}

@@ -1,0 +1,2 @@
+# Keep the repository portable across Windows, Linux, and macOS.
+* text=auto eol=lf

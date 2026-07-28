@@ -1,0 +1,45 @@
+default_shell "{{ if eq .chezmoi.os "windows" }}nu.exe{{ else }}nu{{ end }}"
+
+show_startup_tips false
+show_release_notes true
+
+pane_frames true
+rounded_corners true
+mouse_mode true
+
+copy_on_select true
+copy_clipboard "system"
+scroll_buffer_size 20000
+
+session_serialization true
+pane_viewport_serialization true
+scrollback_lines_to_serialize 5000
+serialization_interval 60
+on_force_close "detach"
+
+// The default status bar includes mode-specific shortcut hints for new users.
+default_layout "default"
+auto_layout false
+
+theme "catppuccin-mocha"
+simplified_ui false
+hide_session_name false
+styled_underlines true
+
+keybinds {
+    normal {
+        bind "Alt h" { MoveFocus "Left"; }
+        bind "Alt j" { MoveFocus "Down"; }
+        bind "Alt k" { MoveFocus "Up"; }
+        bind "Alt l" { MoveFocus "Right"; }
+
+        bind "Alt n" { NewPane; }
+        bind "Alt f" { TogglePaneEmbedOrFloating; }
+
+        bind "Alt =" { Resize "Increase"; }
+        bind "Alt -" { Resize "Decrease"; }
+
+        bind "Alt [" { GoToPreviousTab; }
+        bind "Alt ]" { GoToNextTab; }
+    }
+}

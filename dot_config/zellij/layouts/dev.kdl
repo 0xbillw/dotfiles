@@ -1,0 +1,26 @@
+layout {
+    pane size=1 borderless=true {
+        plugin location="tab-bar"
+    }
+
+    tab name="code" focus=true {
+        pane split_direction="vertical" {
+            pane size="70%" name="main"
+            pane split_direction="horizontal" {
+                pane name="shell"
+                pane name="git"
+            }
+        }
+    }
+
+    tab name="services" {
+        pane split_direction="horizontal" {
+            pane name="server"
+            pane name="logs"
+        }
+    }
+
+    pane size=1 borderless=true {
+        plugin location="status-bar"
+    }
+}

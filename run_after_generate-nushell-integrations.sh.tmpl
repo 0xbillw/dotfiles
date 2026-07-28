@@ -1,0 +1,35 @@
+{{- if ne .chezmoi.os "windows" }}
+#!/bin/sh
+set -eu
+
+# Make Linuxbrew-installed tools visible in this non-login script.
+for brew_candidate in \
+    /opt/homebrew/bin/brew \
+    /usr/local/bin/brew \
+    /home/linuxbrew/.linuxbrew/bin/brew \
+    "$HOME/.linuxbrew/bin/brew"
+do
+    if [ -x "$brew_candidate" ]; then
+        eval "$("$brew_candidate" shellenv)"
+        break
+    fi
+done
+
+data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+autoload_dir="$data_home/nushell/vendor/autoload"
+starship_init="$autoload_dir/starship.nu"
+zoxide_init="$HOME/.zoxide.nu"
+mkdir -p "$autoload_dir"
+
+if command -v starship >/dev/null 2>&1; then
+    starship init nu > "$starship_init"
+else
+    printf '%s\n' '# Starship is not installed.' > "$starship_init"
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+    zoxide init nushell > "$zoxide_init"
+else
+    printf '%s\n' '# zoxide is not installed.' > "$zoxide_init"
+fi
+{{- end }}

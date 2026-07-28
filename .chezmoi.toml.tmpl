@@ -1,0 +1,34 @@
+{{- $guiEditor := promptStringOnce . "guiEditor" "GUI editor command" "code" -}}
+{{- $terminalEditor := promptStringOnce . "terminalEditor" "Terminal editor command" "hx" -}}
+{{- $fontFamily := promptStringOnce . "fontFamily" "Terminal font family" "JetBrainsMono Nerd Font" -}}
+{{- $colorScheme := promptStringOnce . "colorScheme" "WezTerm color scheme" "Catppuccin Mocha" -}}
+{{- $fontSize := promptIntOnce . "fontSize" "Terminal font size" 13 -}}
+{{- $autoZellij := promptBoolOnce . "autoZellij" "Start the main Zellij session automatically?" false -}}
+{{- $workstation := promptBoolOnce . "workstation" "Is this a graphical workstation (not a remote/headless server)?" true -}}
+{{- $installPackages := promptBoolOnce . "installPackages" "Install and update the required terminal programs automatically?" true -}}
+{{- $proxyEnabled := promptBoolOnce . "proxyEnabled" "Enable the terminal proxy by default?" true -}}
+{{- $proxyUrl := "http://127.0.0.1:7890" -}}
+{{- if $proxyEnabled -}}
+{{-   $proxyUrl = promptStringOnce . "proxyUrl" "Terminal proxy URL" $proxyUrl -}}
+{{- end -}}
+
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[data]
+guiEditor = {{ $guiEditor | quote }}
+terminalEditor = {{ $terminalEditor | quote }}
+fontFamily = {{ $fontFamily | quote }}
+colorScheme = {{ $colorScheme | quote }}
+fontSize = {{ $fontSize }}
+autoZellij = {{ $autoZellij }}
+workstation = {{ $workstation }}
+installPackages = {{ $installPackages }}
+proxyUrl = {{ $proxyUrl | quote }}
+proxyEnabled = {{ $proxyEnabled }}
+
+[edit]
+command = {{ $guiEditor | quote }}
+
+[git]
+autoCommit = false
+autoPush = false

@@ -1,0 +1,163 @@
+local wezterm = require("wezterm")
+local act = wezterm.action
+local config = wezterm.config_builder()
+
+local target = wezterm.target_triple
+local is_windows = target:find("windows") ~= nil
+local is_macos = target:find("darwin") ~= nil
+
+local nu = is_windows and "nu.exe" or "nu"
+local zellij = is_windows and "zellij.exe" or "zellij"
+
+config.default_prog = {
+{{- if .autoZellij }}
+  zellij, "attach", "main", "--create",
+{{- else }}
+  nu,
+{{- end }}
+}
+
+config.set_environment_variables = {
+  ZELLIJ_CONFIG_DIR = wezterm.home_dir .. "/.config/zellij",
+}
+
+config.font = wezterm.font_with_fallback({
+  {
+    family = {{ .fontFamily | quote }},
+    weight = "Regular",
+  },
+  "JetBrains Mono",
+  "Noto Sans Mono CJK SC",
+  "Symbols Nerd Font Mono",
+})
+
+config.font_size = {{ .fontSize }}
+if is_macos then
+  config.font_size = config.font_size + 1
+end
+
+config.color_scheme = {{ .colorScheme | quote }}
+config.term = "xterm-256color"
+
+config.enable_tab_bar = false
+config.use_fancy_tab_bar = false
+config.window_decorations = "TITLE | RESIZE"
+config.window_close_confirmation = "NeverPrompt"
+config.adjust_window_size_when_changing_font_size = false
+
+config.window_padding = {
+  left = 8,
+  right = 8,
+  top = 8,
+  bottom = 6,
+}
+
+config.initial_cols = 132
+config.initial_rows = 36
+config.scrollback_lines = 20000
+
+config.default_cursor_style = "BlinkingBlock"
+config.cursor_blink_rate = 700
+
+config.selection_word_boundary = " \t\n{}[]()\"'`,;:│┃|"
+
+config.mouse_bindings = {
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "NONE",
+    action = act.CompleteSelection("ClipboardAndPrimarySelection"),
+  },
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = is_macos and "CMD" or "CTRL",
+    action = act.OpenLinkAtMouseCursor,
+  },
+}
+
+config.keys = {
+  {
+    key = "c",
+    mods = "CTRL|SHIFT",
+    action = act.CopyTo("Clipboard"),
+  },
+  {
+    key = "v",
+    mods = "CTRL|SHIFT",
+    action = act.PasteFrom("Clipboard"),
+  },
+  {
+    key = "c",
+    mods = "CMD",
+    action = act.CopyTo("Clipboard"),
+  },
+  {
+    key = "v",
+    mods = "CMD",
+    action = act.PasteFrom("Clipboard"),
+  },
+  {
+    key = "=",
+    mods = "CTRL",
+    action = act.IncreaseFontSize,
+  },
+  {
+    key = "-",
+    mods = "CTRL",
+    action = act.DecreaseFontSize,
+  },
+  {
+    key = "0",
+    mods = "CTRL",
+    action = act.ResetFontSize,
+  },
+  {
+    key = "f",
+    mods = "CTRL|SHIFT",
+    action = act.Search({ CaseInSensitiveString = "" }),
+  },
+  {
+    key = "Enter",
+    mods = "ALT",
+    action = act.ToggleFullScreen,
+  },
+  {
+    key = "r",
+    mods = "CTRL|SHIFT",
+    action = act.ReloadConfiguration,
+  },
+  {
+    key = "l",
+    mods = "CTRL|SHIFT",
+    action = act.ShowLauncherArgs({ flags = "LAUNCH_MENU_ITEMS" }),
+  },
+}
+
+config.launch_menu = {
+  {
+    label = "Nushell",
+    args = { nu },
+  },
+  {
+    label = "Zellij main",
+    args = { zellij, "attach", "main", "--create" },
+  },
+}
+
+if is_windows then
+  table.insert(config.launch_menu, {
+    label = "PowerShell",
+    args = { "pwsh.exe", "-NoLogo" },
+  })
+elseif is_macos then
+  table.insert(config.launch_menu, {
+    label = "Zsh",
+    args = { "/bin/zsh", "-l" },
+  })
+else
+  table.insert(config.launch_menu, {
+    label = "Bash",
+    args = { "/bin/bash", "-l" },
+  })
+end
+
+return config

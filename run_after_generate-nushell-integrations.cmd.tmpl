@@ -1,0 +1,33 @@
+{{- if eq .chezmoi.os "windows" }}
+@echo off
+setlocal
+
+if defined XDG_DATA_HOME (
+    set "NU_DATA_DIR=%XDG_DATA_HOME%\nushell"
+) else (
+    set "NU_DATA_DIR=%APPDATA%\nushell"
+)
+set "AUTOLOAD_DIR=%NU_DATA_DIR%\vendor\autoload"
+set "STARSHIP_INIT=%AUTOLOAD_DIR%\starship.nu"
+set "ZOXIDE_INIT=%USERPROFILE%\.zoxide.nu"
+
+if not exist "%AUTOLOAD_DIR%" mkdir "%AUTOLOAD_DIR%"
+
+where starship.exe >nul 2>nul
+if errorlevel 1 (
+    echo # Starship is not installed.>"%STARSHIP_INIT%"
+) else (
+    starship init nu >"%STARSHIP_INIT%"
+    if errorlevel 1 exit /b 1
+)
+
+where zoxide.exe >nul 2>nul
+if errorlevel 1 (
+    echo # zoxide is not installed.>"%ZOXIDE_INIT%"
+) else (
+    zoxide init nushell >"%ZOXIDE_INIT%"
+    if errorlevel 1 exit /b 1
+)
+
+endlocal
+{{- end }}
