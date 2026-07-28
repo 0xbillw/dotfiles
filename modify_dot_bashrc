@@ -1,0 +1,27 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $current := .chezmoi.stdin | replaceAllRegex `(?ms)\n*^# >>> cross-platform terminal workspace >>>$\n.*?^# <<< cross-platform terminal workspace <<<$\n?` "" -}}
+{{- $current = $current | replaceAllRegex `[\r\n]+$` "" -}}
+{{ $current }}
+# >>> cross-platform terminal workspace >>>
+# Keep Bash as the system login shell, but enter Nushell for interactive use.
+case $- in
+    *i*) ;;
+    *) return ;;
+esac
+
+if [ -z "${DOTFILES_NO_AUTO_NU:-}" ]; then
+    for brew_candidate in \
+        /home/linuxbrew/.linuxbrew/bin/brew \
+        "$HOME/.linuxbrew/bin/brew"
+    do
+        if [ -x "$brew_candidate" ]; then
+            eval "$("$brew_candidate" shellenv)"
+            break
+        fi
+    done
+
+    if command -v nu >/dev/null 2>&1; then
+        exec nu
+    fi
+fi
+# <<< cross-platform terminal workspace <<<

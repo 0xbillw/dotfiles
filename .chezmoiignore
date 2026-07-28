@@ -1,8 +1,14 @@
 README.md
 
+{{- $workstation := index . "workstation" | default false }}
+{{- if not $workstation }}
+.wezterm.lua
+{{- end }}
+
 # Nushell uses native platform configuration directories.
 {{- if ne .chezmoi.os "linux" }}
 .config/nushell/**
+.bashrc
 {{- end }}
 
 {{- if ne .chezmoi.os "darwin" }}
