@@ -28,7 +28,7 @@ shared behavior stays version-controlled and portable.
 | --- | --- | --- | --- |
 | Windows | WezTerm, font, and CLI stack | CLI stack | winget |
 | macOS | WezTerm, font, and CLI stack | CLI stack | Homebrew |
-| Linux | CLI stack; GUI/font packages are distribution-specific | CLI stack | Homebrew for CLI tools |
+| Linux | CLI stack; GUI/font packages are distribution-specific | CLI stack | apt plus official binaries (Ubuntu 22.04/24.04) |
 
 On Linux graphical workstations, WezTerm and the Nerd Font are installed with
 the distribution's preferred package mechanism; the shared terminal and shell
@@ -118,16 +118,15 @@ Two machine roles are supported:
 - A **Windows or macOS workstation** installs the CLI tools plus WezTerm and
   the Nerd Font. A Linux workstation automates the CLI stack and leaves the GUI
   and font packages to the distribution.
-- A **remote/headless server** installs only Nushell, Zellij, Starship, zoxide,
-  and fzf. WezTerm and fonts belong on the local computer displaying the SSH
-  session, not on the server.
+- A **remote/headless server** installs Nushell, Zellij, Helix, Starship,
+  zoxide, and fzf. WezTerm and fonts belong on the local computer displaying
+  the SSH session, not on the server.
 
-Windows uses `winget`. macOS and Linux use Homebrew; when package management is
-enabled, the script bootstraps Homebrew if it is missing. Linux package
-management varies heavily by distribution, so Homebrew keeps the CLI versions
-and package names consistent without requiring root access after Homebrew itself
-is set up. A minimal Unix installation still needs `curl`, Git, and the build
-prerequisites required by Homebrew.
+Windows uses `winget` and macOS uses Homebrew. Linux deliberately does not use
+Homebrew: the automatic installer currently targets Ubuntu 22.04 and 24.04,
+uses apt for system packages and project-documented repositories, and downloads
+official prebuilt binaries only where Ubuntu LTS has no suitable package. It
+does not compile the Rust tools from source.
 
 The managed programs are:
 
@@ -190,12 +189,18 @@ winget install junegunn.fzf
 winget install DEVCOM.JetBrainsMonoNerdFont
 ```
 
-### Ubuntu/Linux
+### Ubuntu 22.04/24.04
 
 For the automatic flow, answer `true` to package management during `chezmoi
-init`; Homebrew is bootstrapped when absent. A server receives only the CLI
-stack. A Linux graphical workstation still needs WezTerm and the Nerd Font from
-its distribution because GUI/font packaging differs between distributions.
+init`. The installer uses Ubuntu apt, the Nushell apt repository documented by
+the Nushell project, and the Helix PPA documented by Helix. Starship, zoxide,
+and the pinned compatible Zellij release are installed as official prebuilt
+binaries under `~/.local/bin`. A Linux graphical workstation still needs
+WezTerm and the Nerd Font from its distribution because GUI/font packaging
+differs between distributions.
+
+Other Linux distributions currently stop with an explicit unsupported-platform
+message instead of installing Homebrew or attempting a source build.
 
 ## Starship and zoxide
 
@@ -472,10 +477,10 @@ Zellij is normalized to `~/.config/zellij` on every platform by setting
 ## Linux login shell bridge
 
 Linux keeps Bash as the account's system login shell for compatibility with
-SSH commands, SCP, and automation. A managed block in `~/.bashrc` loads
-Linuxbrew and replaces only interactive Bash sessions with Nushell. This makes
-PuTTY and other SSH clients enter the configured Nushell environment without
-using `chsh`.
+SSH commands, SCP, and automation. A managed block in `~/.bashrc` replaces only
+interactive Bash sessions with Nushell when `nu` is available. This makes PuTTY
+and other SSH clients enter the configured Nushell environment without using
+`chsh`.
 
 The bridge does not run for non-interactive shells. To deliberately open an
 interactive Bash session without being redirected back to Nushell, use:

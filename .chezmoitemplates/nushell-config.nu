@@ -81,8 +81,6 @@ let candidate_paths = if $nu.os-info.name == "windows" {
     [
         ($nu.home-dir | path join ".local" "bin")
         ($nu.home-dir | path join ".cargo" "bin")
-        ($nu.home-dir | path join ".linuxbrew" "bin")
-        "/home/linuxbrew/.linuxbrew/bin"
         "/opt/homebrew/bin"
         "/usr/local/bin"
     ]

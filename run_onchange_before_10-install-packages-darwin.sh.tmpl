@@ -1,0 +1,32 @@
+{{- $installPackages := index . "installPackages" | default false -}}
+{{- $workstation := index . "workstation" | default false -}}
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+{{- if not $installPackages }}
+echo "Automatic package installation is disabled; run 'chezmoi init --prompt' to change this machine option."
+exit 0
+{{- end }}
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "Installing Homebrew for macOS package management..."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+if command -v brew >/dev/null 2>&1; then
+    brew_bin="$(command -v brew)"
+elif [ -x /opt/homebrew/bin/brew ]; then
+    brew_bin=/opt/homebrew/bin/brew
+else
+    brew_bin=/usr/local/bin/brew
+fi
+
+eval "$("$brew_bin" shellenv)"
+"$brew_bin" update
+"$brew_bin" install nushell helix zellij starship zoxide fzf
+
+{{- if $workstation }}
+"$brew_bin" install --cask wezterm font-jetbrains-mono-nerd-font
+{{- end }}
+{{- end }}
