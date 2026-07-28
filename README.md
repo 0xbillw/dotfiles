@@ -28,7 +28,7 @@ shared behavior stays version-controlled and portable.
 | --- | --- | --- | --- |
 | Windows | WezTerm, font, and CLI stack | CLI stack | winget |
 | macOS | WezTerm, font, and CLI stack | CLI stack | Homebrew |
-| Linux | CLI stack; GUI/font packages are distribution-specific | CLI stack | apt plus official binaries (Ubuntu 22.04/24.04) |
+| Linux | CLI stack and Nerd Font; GUI terminal package is distribution-specific | CLI stack | apt plus official binaries (Ubuntu 22.04/24.04) |
 
 On Linux graphical workstations, WezTerm and the Nerd Font are installed with
 the distribution's preferred package mechanism; the shared terminal and shell
@@ -127,8 +127,8 @@ to ask again instead of silently preserving previously saved answers.
 Two machine roles are supported:
 
 - A **Windows or macOS workstation** installs the CLI tools plus WezTerm and
-  the Nerd Font. A Linux workstation automates the CLI stack and leaves the GUI
-  and font packages to the distribution.
+  the Nerd Font. An Ubuntu workstation installs the CLI stack and Nerd Font,
+  while leaving the WezTerm package to the distribution.
 - A **remote/headless server** installs Nushell, Zellij, Helix, Starship,
   zoxide, and fzf. WezTerm and fonts belong on the local computer displaying
   the SSH session, not on the server.
@@ -206,9 +206,9 @@ winget install DEVCOM.JetBrainsMonoNerdFont
 For the automatic flow, answer `true` to package management during `chezmoi
 init`. The installer uses Ubuntu apt and the Helix PPA documented by Helix.
 Nushell 0.114.1, Starship, zoxide, and the pinned compatible Zellij release are installed as official prebuilt
-binaries under `~/.local/bin`. A Linux graphical workstation still needs
-WezTerm and the Nerd Font from its distribution because GUI/font packaging
-differs between distributions.
+binaries under `~/.local/bin`. An Ubuntu graphical workstation also installs
+the four JetBrainsMono Nerd Font faces used by WezTerm under
+`~/.local/share/fonts`. WezTerm itself remains distribution-managed.
 
 Nushell is pinned to 0.114.1 on every platform because its configuration API
 changes between releases. Zellij remains pinned to 0.44.1 because later 0.44.x
