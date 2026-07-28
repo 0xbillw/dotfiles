@@ -1,4 +1,5 @@
 {{- $installPackages := index . "installPackages" | default false -}}
+{{- $workstation := index . "workstation" | default false -}}
 {{- if eq .chezmoi.os "linux" -}}
 #!/bin/sh
 set -eu
@@ -34,6 +35,9 @@ fi
 
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl fzf software-properties-common
+{{- if $workstation }}
+sudo apt-get install -y fontconfig
+{{- end }}
 
 # Helix documents this PPA for Ubuntu installations.
 sudo add-apt-repository -y ppa:maveonair/helix-editor
@@ -78,6 +82,28 @@ esac
 # Zellij 0.44.2/0.44.3 leak OSC replies on reattach; keep 0.44.1 for now.
 curl -fsSL "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-${zellij_target}.tar.gz" \
     | tar -xz -C "$HOME/.local/bin" zellij
+
+{{- if $workstation }}
+# Install only the four JetBrainsMono Nerd Font faces used by the terminal.
+nerd_fonts_version=v3.4.0
+font_dir="$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
+mkdir -p "$font_dir"
+
+install_font() {
+    font_style="$1"
+    font_file="$2"
+    curl -fsSL \
+        "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/${nerd_fonts_version}/patched-fonts/JetBrainsMono/Ligatures/${font_style}/${font_file}" \
+        -o "$font_dir/$font_file"
+}
+
+install_font Regular JetBrainsMonoNerdFont-Regular.ttf
+install_font Bold JetBrainsMonoNerdFont-Bold.ttf
+install_font Italic JetBrainsMonoNerdFont-Italic.ttf
+install_font BoldItalic JetBrainsMonoNerdFont-BoldItalic.ttf
+fc-cache -f "$font_dir"
+echo "Installed JetBrainsMono Nerd Font ${nerd_fonts_version} for this workstation."
+{{- end }}
 
 echo "Installed Ubuntu terminal dependencies without Homebrew."
 {{- end }}
