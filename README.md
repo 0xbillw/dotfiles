@@ -67,14 +67,21 @@ The commands below install this configuration on a new machine. Replace
 Install chezmoi and apply:
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply YOUR_NAME
+sh -c "$(curl -fsLS get.chezmoi.io)" -- \
+  -b "$HOME/.local/bin" \
+  init --apply YOUR_NAME
 ```
 
 For a private repository:
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:YOUR_NAME/dotfiles.git
+sh -c "$(curl -fsLS get.chezmoi.io)" -- \
+  -b "$HOME/.local/bin" \
+  init --apply git@github.com:YOUR_NAME/dotfiles.git
 ```
+
+The explicit `-b` path keeps the chezmoi binary out of the current directory.
+The shared Nushell configuration includes `~/.local/bin` in `PATH`.
 
 ### Windows PowerShell
 
