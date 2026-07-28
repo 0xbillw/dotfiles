@@ -10,7 +10,9 @@ case $- in
 esac
 
 if [ -z "${DOTFILES_NO_AUTO_NU:-}" ]; then
-    if command -v nu >/dev/null 2>&1; then
+    if [ -x "$HOME/.local/bin/nu" ]; then
+        exec "$HOME/.local/bin/nu"
+    elif command -v nu >/dev/null 2>&1; then
         exec nu
     fi
 fi
