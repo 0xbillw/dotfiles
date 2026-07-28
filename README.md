@@ -106,9 +106,12 @@ For an existing checkout that predates these questions, refresh the local
 machine data first:
 
 ```sh
-chezmoi init
+chezmoi init --prompt
 chezmoi apply
 ```
+
+The `--prompt` flag is important: it forces chezmoi's `prompt*Once` functions
+to ask again instead of silently preserving previously saved answers.
 
 Two machine roles are supported:
 
@@ -378,8 +381,15 @@ During `chezmoi init`, `.chezmoi.toml.tmpl` asks for:
 Re-run initialization questions:
 
 ```nu
-chezmoi init
+chezmoi init --prompt
 chezmoi apply
+```
+
+After Nushell is installed, the equivalent shortcut is:
+
+```nu
+cconfigure
+capply
 ```
 
 ## Terminal proxy
