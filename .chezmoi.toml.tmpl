@@ -1,11 +1,18 @@
-{{- $guiEditor := promptStringOnce . "guiEditor" "GUI editor command" "code" -}}
 {{- $terminalEditor := promptStringOnce . "terminalEditor" "Terminal editor command" "hx" -}}
-{{- $fontFamily := promptStringOnce . "fontFamily" "Terminal font family" "JetBrainsMono Nerd Font" -}}
-{{- $colorScheme := promptStringOnce . "colorScheme" "WezTerm color scheme" "Catppuccin Mocha" -}}
-{{- $fontSize := promptIntOnce . "fontSize" "Terminal font size" 13 -}}
-{{- $autoZellij := promptBoolOnce . "autoZellij" "Start the main Zellij session automatically?" false -}}
 {{- $workstation := promptBoolOnce . "workstation" "Is this a graphical workstation (not a remote/headless server)?" true -}}
 {{- $installPackages := promptBoolOnce . "installPackages" "Install and update the required terminal programs automatically?" true -}}
+{{- $guiEditor := $terminalEditor -}}
+{{- $fontFamily := "JetBrainsMono Nerd Font" -}}
+{{- $colorScheme := "Catppuccin Mocha" -}}
+{{- $fontSize := 13 -}}
+{{- $autoZellij := false -}}
+{{- if $workstation -}}
+{{-   $guiEditor = promptStringOnce . "guiEditor" "GUI editor command" "code" -}}
+{{-   $fontFamily = promptStringOnce . "fontFamily" "Terminal font family" $fontFamily -}}
+{{-   $colorScheme = promptStringOnce . "colorScheme" "WezTerm color scheme" $colorScheme -}}
+{{-   $fontSize = promptIntOnce . "fontSize" "Terminal font size" $fontSize -}}
+{{-   $autoZellij = promptBoolOnce . "autoZellij" "Start the main Zellij session automatically?" false -}}
+{{- end -}}
 {{- $proxyEnabled := promptBoolOnce . "proxyEnabled" "Enable the terminal proxy by default?" true -}}
 {{- $proxyUrl := "http://127.0.0.1:7890" -}}
 {{- if $proxyEnabled -}}

@@ -367,16 +367,22 @@ chezmoi update
 
 During `chezmoi init`, `.chezmoi.toml.tmpl` asks for:
 
-- GUI editor
 - terminal editor
-- preferred font
-- font size
-- color scheme
-- whether WezTerm should start Zellij automatically
 - whether this machine is a graphical workstation or a headless server
 - whether chezmoi should install and update the required programs
 - terminal proxy URL
 - whether the terminal proxy should be enabled by default
+
+Graphical workstations are additionally asked for:
+
+- GUI editor
+- preferred font
+- font size
+- color scheme
+- whether WezTerm should start Zellij automatically
+
+Headless servers skip these GUI questions and do not deploy `.wezterm.lua`.
+Their GUI editor value falls back to the selected terminal editor.
 
 Re-run initialization questions:
 
@@ -390,6 +396,30 @@ After Nushell is installed, the equivalent shortcut is:
 ```nu
 cconfigure
 capply
+```
+
+### PuTTY and limited terminal clients
+
+Some terminal clients can mishandle chezmoi's interactive prompt UI, causing a
+single keypress to submit a field. Do not use `init --prompt` in that session.
+Machine values are ordinary TOML entries and can be changed directly instead.
+
+For example, to enable dependency installation on a headless Linux server:
+
+```sh
+config="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml"
+sed -i -E \
+  -e 's/^(installPackages[[:space:]]*=[[:space:]]*)false/\1true/' \
+  -e 's/^(workstation[[:space:]]*=[[:space:]]*)true/\1false/' \
+  "$config"
+
+"$HOME/.local/bin/chezmoi" apply --verbose
+```
+
+Review the values before applying:
+
+```sh
+grep -E '^(installPackages|workstation)[[:space:]]*=' "$config"
 ```
 
 ## Terminal proxy
@@ -438,6 +468,24 @@ chezmoi deploys one shared Nushell template to the correct native path.
 
 Zellij is normalized to `~/.config/zellij` on every platform by setting
 `ZELLIJ_CONFIG_DIR` in both WezTerm and Nushell.
+
+## Linux login shell bridge
+
+Linux keeps Bash as the account's system login shell for compatibility with
+SSH commands, SCP, and automation. A managed block in `~/.bashrc` loads
+Linuxbrew and replaces only interactive Bash sessions with Nushell. This makes
+PuTTY and other SSH clients enter the configured Nushell environment without
+using `chsh`.
+
+The bridge does not run for non-interactive shells. To deliberately open an
+interactive Bash session without being redirected back to Nushell, use:
+
+```sh
+DOTFILES_NO_AUTO_NU=1 bash
+```
+
+The block is maintained with chezmoi's `modify_` mechanism, so existing Bash
+configuration outside the marked section is preserved.
 
 ## Publishing your own fork
 
