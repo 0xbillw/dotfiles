@@ -69,6 +69,7 @@ Install chezmoi and apply:
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- \
   -b "$HOME/.local/bin" \
+  -- \
   init --apply YOUR_NAME
 ```
 
@@ -77,7 +78,17 @@ For a private repository:
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- \
   -b "$HOME/.local/bin" \
+  -- \
   init --apply git@github.com:YOUR_NAME/dotfiles.git
+```
+
+To test a branch before merging it, pass the branch to `chezmoi init`:
+
+```sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- \
+  -b "$HOME/.local/bin" \
+  -- \
+  init --branch BRANCH_NAME --apply YOUR_NAME
 ```
 
 The explicit `-b` path keeps the chezmoi binary out of the current directory.
@@ -125,7 +136,7 @@ Two machine roles are supported:
 Windows uses `winget` and macOS uses Homebrew. Linux deliberately does not use
 Homebrew: the automatic installer currently targets Ubuntu 22.04 and 24.04,
 uses apt for system packages and project-documented repositories, and downloads
-official prebuilt binaries only where Ubuntu LTS has no suitable package. It
+official prebuilt binaries where Ubuntu LTS has no suitable or compatible package. It
 does not compile the Rust tools from source.
 
 The managed programs are:
@@ -173,14 +184,15 @@ Suggested commands:
 
 ```sh
 brew install --cask wezterm font-jetbrains-mono-nerd-font
-brew install nushell helix zellij starship zoxide
+brew install helix zellij starship zoxide
+# The automatic installer pins Nushell 0.114.1 from its official release.
 ```
 
 ### Windows
 
 ```powershell
 winget install wez.wezterm
-winget install Nushell.Nushell
+winget install --exact --id Nushell.Nushell --version 0.114.1
 winget install Helix.Helix
 winget install Starship.Starship
 winget install ajeetdsouza.zoxide
@@ -192,12 +204,15 @@ winget install DEVCOM.JetBrainsMonoNerdFont
 ### Ubuntu 22.04/24.04
 
 For the automatic flow, answer `true` to package management during `chezmoi
-init`. The installer uses Ubuntu apt, the Nushell apt repository documented by
-the Nushell project, and the Helix PPA documented by Helix. Starship, zoxide,
-and the pinned compatible Zellij release are installed as official prebuilt
+init`. The installer uses Ubuntu apt and the Helix PPA documented by Helix.
+Nushell 0.114.1, Starship, zoxide, and the pinned compatible Zellij release are installed as official prebuilt
 binaries under `~/.local/bin`. A Linux graphical workstation still needs
 WezTerm and the Nerd Font from its distribution because GUI/font packaging
 differs between distributions.
+
+Nushell is pinned to 0.114.1 on every platform because its configuration API
+changes between releases. Zellij remains pinned to 0.44.1 because later 0.44.x
+releases have the reattach regression described below.
 
 Other Linux distributions currently stop with an explicit unsupported-platform
 message instead of installing Homebrew or attempting a source build.

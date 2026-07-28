@@ -67,20 +67,27 @@ def --env proxy-off [] {
 proxy-on --quiet
 {{- end }}
 
+# Resolve the home directory without relying on version-specific fields in $nu.
+let home_dir = if $nu.os-info.name == "windows" {
+    $env.USERPROFILE
+} else {
+    $env.HOME
+}
+
 # Normalize Zellij's configuration path on all platforms.
-$env.ZELLIJ_CONFIG_DIR = ($nu.home-dir | path join ".config" "zellij")
+$env.ZELLIJ_CONFIG_DIR = ($home_dir | path join ".config" "zellij")
 
 # Common executable locations. Add only paths that exist.
 let candidate_paths = if $nu.os-info.name == "windows" {
     [
-        ($nu.home-dir | path join ".cargo" "bin")
-        ($nu.home-dir | path join "scoop" "shims")
-        ($nu.home-dir | path join "AppData" "Local" "Microsoft" "WinGet" "Links")
+        ($home_dir | path join ".cargo" "bin")
+        ($home_dir | path join "scoop" "shims")
+        ($home_dir | path join "AppData" "Local" "Microsoft" "WinGet" "Links")
     ]
 } else {
     [
-        ($nu.home-dir | path join ".local" "bin")
-        ($nu.home-dir | path join ".cargo" "bin")
+        ($home_dir | path join ".local" "bin")
+        ($home_dir | path join ".cargo" "bin")
         "/opt/homebrew/bin"
         "/usr/local/bin"
     ]

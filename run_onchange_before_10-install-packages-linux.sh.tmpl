@@ -33,21 +33,32 @@ if ! command -v sudo >/dev/null 2>&1; then
 fi
 
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl fzf gnupg software-properties-common wget
-
-# Nushell's official installation documentation provides this apt repository.
-sudo install -d -m 0755 /etc/apt/keyrings
-wget -qO- https://apt.fury.io/nushell/gpg.key \
-    | sudo gpg --dearmor --yes -o /etc/apt/keyrings/fury-nushell.gpg
-echo "deb [signed-by=/etc/apt/keyrings/fury-nushell.gpg] https://apt.fury.io/nushell/ /" \
-    | sudo tee /etc/apt/sources.list.d/fury-nushell.list >/dev/null
+sudo apt-get install -y ca-certificates curl fzf software-properties-common
 
 # Helix documents this PPA for Ubuntu installations.
 sudo add-apt-repository -y ppa:maveonair/helix-editor
 sudo apt-get update
-sudo apt-get install -y helix nushell
+sudo apt-get install -y helix
 
 mkdir -p "$HOME/.local/bin"
+
+# Pin Nushell because its configuration API changes between releases.
+nushell_version=0.114.1
+case "$(uname -m)" in
+    x86_64|amd64) nushell_target=x86_64-unknown-linux-gnu ;;
+    aarch64|arm64) nushell_target=aarch64-unknown-linux-gnu ;;
+    *)
+        echo "Unsupported CPU architecture for Nushell: $(uname -m)" >&2
+        exit 1
+        ;;
+esac
+nushell_archive="nu-${nushell_version}-${nushell_target}.tar.gz"
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+curl -fsSL "https://github.com/nushell/nushell/releases/download/${nushell_version}/${nushell_archive}" \
+    -o "$tmp_dir/$nushell_archive"
+tar -xzf "$tmp_dir/$nushell_archive" -C "$tmp_dir"
+install -m 0755 "$tmp_dir/nu-${nushell_version}-${nushell_target}/nu" "$HOME/.local/bin/nu"
 
 # Install lightweight official release binaries for tools absent from Ubuntu LTS.
 curl -fsSL https://starship.rs/install.sh \
