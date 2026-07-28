@@ -4,7 +4,7 @@
 {{- $guiEditor := $terminalEditor -}}
 {{- $fontFamily := "JetBrainsMono Nerd Font" -}}
 {{- $colorScheme := "Catppuccin Mocha" -}}
-{{- $fontSize := 13 -}}
+{{- $fontSize := int64 13 -}}
 {{- $autoZellij := false -}}
 {{- if $workstation -}}
 {{-   $guiEditor = promptStringOnce . "guiEditor" "GUI editor command" "code" -}}

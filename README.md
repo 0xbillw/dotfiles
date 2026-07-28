@@ -30,9 +30,9 @@ shared behavior stays version-controlled and portable.
 | macOS | WezTerm, font, and CLI stack | CLI stack | Homebrew |
 | Linux | CLI stack and Nerd Font; GUI terminal package is distribution-specific | CLI stack | apt plus official binaries (Ubuntu 22.04/24.04) |
 
-On Linux graphical workstations, WezTerm and the Nerd Font are installed with
-the distribution's preferred package mechanism; the shared terminal and shell
-configuration remains the same.
+On supported Linux graphical workstations, the Nerd Font is installed
+automatically. WezTerm remains distribution-managed; the shared terminal and
+shell configuration remains the same.
 
 ## Design
 
