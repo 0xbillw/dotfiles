@@ -10,16 +10,6 @@ case $- in
 esac
 
 if [ -z "${DOTFILES_NO_AUTO_NU:-}" ]; then
-    for brew_candidate in \
-        /home/linuxbrew/.linuxbrew/bin/brew \
-        "$HOME/.linuxbrew/bin/brew"
-    do
-        if [ -x "$brew_candidate" ]; then
-            eval "$("$brew_candidate" shellenv)"
-            break
-        fi
-    done
-
     if command -v nu >/dev/null 2>&1; then
         exec nu
     fi

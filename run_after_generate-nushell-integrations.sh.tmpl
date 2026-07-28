@@ -2,19 +2,6 @@
 #!/bin/sh
 set -eu
 
-# Make Linuxbrew-installed tools visible in this non-login script.
-for brew_candidate in \
-    /opt/homebrew/bin/brew \
-    /usr/local/bin/brew \
-    /home/linuxbrew/.linuxbrew/bin/brew \
-    "$HOME/.linuxbrew/bin/brew"
-do
-    if [ -x "$brew_candidate" ]; then
-        eval "$("$brew_candidate" shellenv)"
-        break
-    fi
-done
-
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 autoload_dir="$data_home/nushell/vendor/autoload"
 starship_init="$autoload_dir/starship.nu"
