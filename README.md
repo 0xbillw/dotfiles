@@ -497,8 +497,16 @@ interactive Bash sessions with Nushell when `nu` is available. This makes PuTTY
 and other SSH clients enter the configured Nushell environment without using
 `chsh`.
 
-The bridge does not run for non-interactive shells. To deliberately open an
-interactive Bash session without being redirected back to Nushell, use:
+The bridge does not run for non-interactive shells. From Nushell, the managed
+`bash` wrapper automatically bypasses the bridge, so switching shells works as
+expected:
+
+```nu
+bash
+bash -l
+```
+
+From another POSIX shell, the equivalent explicit bypass is:
 
 ```sh
 DOTFILES_NO_AUTO_NU=1 bash

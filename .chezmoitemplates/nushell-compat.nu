@@ -20,3 +20,13 @@ alias gsw = git switch
 # Familiar utility shortcuts that preserve Nushell semantics.
 alias cls = clear
 alias md = mkdir
+
+{{ if eq .chezmoi.os "linux" }}
+# Bypass the interactive Bash-to-Nushell login bridge when Bash is requested
+# explicitly from Nushell. Forward all arguments to the native executable.
+def --wrapped bash [...args] {
+    with-env { DOTFILES_NO_AUTO_NU: "1" } {
+        ^bash ...$args
+    }
+}
+{{ end }}
