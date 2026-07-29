@@ -385,7 +385,12 @@ chezmoi update
 
 ## Machine-specific values
 
-During `chezmoi init`, `.chezmoi.toml.tmpl` asks for:
+During `chezmoi init`, `.chezmoi.toml.tmpl` presents numbered choices for the
+machine role, package setup, proxy behavior, and Zellij startup instead of
+ambiguous `true`/`false` questions. Type `1` or `2`; chezmoi accepts the unique
+choice immediately without requiring Enter. When the proxy is enabled, its URL
+is always shown for confirmation with the saved value as the default. It also
+asks for:
 
 - terminal editor
 - whether this machine is a graphical workstation or a headless server

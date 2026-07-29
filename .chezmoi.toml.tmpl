@@ -1,22 +1,27 @@
 {{- $terminalEditor := promptStringOnce . "terminalEditor" "Terminal editor command" "hx" -}}
-{{- $workstation := promptBoolOnce . "workstation" "Is this a graphical workstation (not a remote/headless server)?" true -}}
-{{- $installPackages := promptBoolOnce . "installPackages" "Install and update the required terminal programs automatically?" true -}}
+{{- $machineRole := promptChoiceOnce . "machineRole" "Machine role\n  1) Graphical workstation\n  2) Headless server\nEnter 1 or 2" (list "1 - Graphical workstation" "2 - Headless server") "1 - Graphical workstation" -}}
+{{- $workstation := eq $machineRole "1 - Graphical workstation" -}}
+{{- $packageMode := promptChoiceOnce . "packageMode" "Package setup\n  1) Install automatically\n  2) Configure only\nEnter 1 or 2" (list "1 - Install automatically" "2 - Configure only") "1 - Install automatically" -}}
+{{- $installPackages := eq $packageMode "1 - Install automatically" -}}
 {{- $guiEditor := $terminalEditor -}}
 {{- $fontFamily := "JetBrainsMono Nerd Font" -}}
 {{- $colorScheme := "Catppuccin Mocha" -}}
 {{- $fontSize := int64 13 -}}
 {{- $autoZellij := false -}}
+{{- $zellijMode := "1 - Start manually" -}}
 {{- if $workstation -}}
 {{-   $guiEditor = promptStringOnce . "guiEditor" "GUI editor command" "code" -}}
 {{-   $fontFamily = promptStringOnce . "fontFamily" "Terminal font family" $fontFamily -}}
 {{-   $colorScheme = promptStringOnce . "colorScheme" "WezTerm color scheme" $colorScheme -}}
 {{-   $fontSize = promptIntOnce . "fontSize" "Terminal font size" $fontSize -}}
-{{-   $autoZellij = promptBoolOnce . "autoZellij" "Start the main Zellij session automatically?" false -}}
+{{-   $zellijMode = promptChoiceOnce . "zellijMode" "Zellij startup\n  1) Start manually\n  2) Start automatically\nEnter 1 or 2" (list "1 - Start manually" "2 - Start automatically") "1 - Start manually" -}}
+{{-   $autoZellij = eq $zellijMode "2 - Start automatically" -}}
 {{- end -}}
-{{- $proxyEnabled := promptBoolOnce . "proxyEnabled" "Enable the terminal proxy by default?" true -}}
-{{- $proxyUrl := "http://127.0.0.1:7890" -}}
+{{- $proxyMode := promptChoiceOnce . "proxyMode" "Terminal proxy\n  1) Enable by default\n  2) Keep disabled\nEnter 1 or 2" (list "1 - Enable by default" "2 - Keep disabled") "1 - Enable by default" -}}
+{{- $proxyEnabled := eq $proxyMode "1 - Enable by default" -}}
+{{- $proxyUrl := index . "proxyUrl" | default "http://127.0.0.1:7890" -}}
 {{- if $proxyEnabled -}}
-{{-   $proxyUrl = promptStringOnce . "proxyUrl" "Terminal proxy URL" $proxyUrl -}}
+{{-   $proxyUrl = promptString "Terminal proxy URL" $proxyUrl -}}
 {{- end -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
@@ -28,10 +33,14 @@ fontFamily = {{ $fontFamily | quote }}
 colorScheme = {{ $colorScheme | quote }}
 fontSize = {{ $fontSize }}
 autoZellij = {{ $autoZellij }}
+zellijMode = {{ $zellijMode | quote }}
 workstation = {{ $workstation }}
+machineRole = {{ $machineRole | quote }}
 installPackages = {{ $installPackages }}
+packageMode = {{ $packageMode | quote }}
 proxyUrl = {{ $proxyUrl | quote }}
 proxyEnabled = {{ $proxyEnabled }}
+proxyMode = {{ $proxyMode | quote }}
 
 [edit]
 command = {{ $guiEditor | quote }}
