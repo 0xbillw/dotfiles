@@ -222,12 +222,13 @@ message instead of installing Homebrew or attempting a source build.
 After each `chezmoi apply`, chezmoi generates version-matched Nushell scripts in:
 
 ```text
-$nu.data-dir/vendor/autoload/starship.nu
+~/.starship.nu
 ~/.zoxide.nu
 ```
 
-Starship is loaded through Nushell's vendor autoload directory. zoxide follows
-its official integration method and is sourced explicitly by `config.nu`.
+Starship and zoxide are sourced explicitly by `config.nu`. Starship is enabled
+for local terminals and SSH sessions launched with `wssh`; other SSH clients
+use Nushell's default prompt. zoxide remains available in every session.
 
 Open a new Nushell after applying the dotfiles. Validate the integrations with:
 
@@ -516,6 +517,18 @@ From another POSIX shell, the equivalent explicit bypass is:
 ```sh
 DOTFILES_NO_AUTO_NU=1 bash
 ```
+
+For an SSH session that preserves the full WezTerm-oriented Starship prompt,
+connect from WezTerm with:
+
+```nu
+wssh user@host
+```
+
+The helper passes an explicit terminal marker because SSH does not forward a
+reliable WezTerm identifier by default. PuTTY, Xshell, and ordinary `ssh`
+sessions use Nushell's default prompt and continue to load zoxide. Bash fallback
+sessions initialize zoxide from the managed `.bashrc` block as well.
 
 The block is maintained with chezmoi's `modify_` mechanism, so existing Bash
 configuration outside the marked section is preserved.
