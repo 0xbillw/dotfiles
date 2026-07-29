@@ -8,10 +8,12 @@ if defined XDG_DATA_HOME (
     set "NU_DATA_DIR=%APPDATA%\nushell"
 )
 set "AUTOLOAD_DIR=%NU_DATA_DIR%\vendor\autoload"
-set "STARSHIP_INIT=%AUTOLOAD_DIR%\starship.nu"
+set "LEGACY_STARSHIP_INIT=%AUTOLOAD_DIR%\starship.nu"
+set "STARSHIP_INIT=%USERPROFILE%\.starship.nu"
 set "ZOXIDE_INIT=%USERPROFILE%\.zoxide.nu"
 
 if not exist "%AUTOLOAD_DIR%" mkdir "%AUTOLOAD_DIR%"
+if exist "%LEGACY_STARSHIP_INIT%" del /q "%LEGACY_STARSHIP_INIT%"
 
 where starship.exe >nul 2>nul
 if errorlevel 1 (
