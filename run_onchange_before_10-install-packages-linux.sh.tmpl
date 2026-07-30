@@ -32,15 +32,15 @@ case "${ID:-}" in
     alpine)
         package_family=apk
         ;;
-    fedora|rhel|centos|rocky|almalinux)
+    fedora|rhel|centos|rocky|almalinux|alinux|anolis)
         package_family=dnf
         ;;
     *)
         case " ${ID_LIKE:-} " in
-            *" rhel "*|*" fedora "*) package_family=dnf ;;
+            *" rhel "*|*" fedora "*|*" anolis "*) package_family=dnf ;;
             *)
                 echo "Unsupported Linux distribution: ${PRETTY_NAME:-${ID:-unknown}}." >&2
-                echo "Supported families: Ubuntu (apt), Fedora/RHEL/CentOS Stream/Rocky/Alma (dnf), and Alpine (apk)." >&2
+                echo "Supported families: Ubuntu (apt), Fedora/RHEL/CentOS Stream/Rocky/Alma/Alibaba Cloud Linux/OpenAnolis (dnf), and Alpine (apk)." >&2
                 exit 1
                 ;;
         esac
