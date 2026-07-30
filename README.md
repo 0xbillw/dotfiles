@@ -137,7 +137,8 @@ Windows uses `winget` and macOS uses Homebrew. Linux deliberately does not use
 Homebrew. The automatic installer dispatches by distribution family:
 
 - Ubuntu 22.04/24.04 uses apt.
-- Fedora, RHEL, CentOS Stream, Rocky Linux, and AlmaLinux use dnf.
+- Fedora, RHEL, CentOS Stream, Rocky Linux, AlmaLinux, Alibaba Cloud Linux,
+  and OpenAnolis use dnf.
 - Alpine Linux uses apk and musl-compatible binaries.
 
 Native packages are preferred. Official prebuilt binaries are used where an
