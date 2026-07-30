@@ -28,7 +28,7 @@ shared behavior stays version-controlled and portable.
 | --- | --- | --- | --- |
 | Windows | WezTerm, font, and CLI stack | CLI stack | winget |
 | macOS | WezTerm, font, and CLI stack | CLI stack | Homebrew |
-| Linux | CLI stack and Nerd Font; GUI terminal package is distribution-specific | CLI stack | apt plus official binaries (Ubuntu 22.04/24.04) |
+| Linux | CLI stack and Nerd Font; GUI terminal package is distribution-specific | CLI stack | apt, dnf, or apk plus official binaries |
 
 On supported Linux graphical workstations, the Nerd Font is installed
 automatically. WezTerm remains distribution-managed; the shared terminal and
@@ -127,17 +127,22 @@ to ask again instead of silently preserving previously saved answers.
 Two machine roles are supported:
 
 - A **Windows or macOS workstation** installs the CLI tools plus WezTerm and
-  the Nerd Font. An Ubuntu workstation installs the CLI stack and Nerd Font,
-  while leaving the WezTerm package to the distribution.
+  the Nerd Font. A supported Linux workstation installs the CLI stack and Nerd
+  Font, while leaving the WezTerm package to the distribution.
 - A **remote/headless server** installs Nushell, Zellij, Helix, Starship,
   zoxide, and fzf. WezTerm and fonts belong on the local computer displaying
   the SSH session, not on the server.
 
 Windows uses `winget` and macOS uses Homebrew. Linux deliberately does not use
-Homebrew: the automatic installer currently targets Ubuntu 22.04 and 24.04,
-uses apt for system packages and project-documented repositories, and downloads
-official prebuilt binaries where Ubuntu LTS has no suitable or compatible package. It
-does not compile the Rust tools from source.
+Homebrew. The automatic installer dispatches by distribution family:
+
+- Ubuntu 22.04/24.04 uses apt.
+- Fedora, RHEL, CentOS Stream, Rocky Linux, and AlmaLinux use dnf.
+- Alpine Linux uses apk and musl-compatible binaries.
+
+Native packages are preferred. Official prebuilt binaries are used where an
+enabled repository has no suitable package; Rust tools are never compiled from
+source. CentOS Linux 7 is EOL and is not supported by this installer.
 
 The managed programs are:
 
@@ -201,21 +206,25 @@ winget install junegunn.fzf
 winget install DEVCOM.JetBrainsMonoNerdFont
 ```
 
-### Ubuntu 22.04/24.04
+### Supported Linux distributions
 
-For the automatic flow, answer `true` to package management during `chezmoi
-init`. The installer uses Ubuntu apt and the Helix PPA documented by Helix.
-Nushell 0.114.1, Starship, zoxide, and the pinned compatible Zellij release are installed as official prebuilt
-binaries under `~/.local/bin`. An Ubuntu graphical workstation also installs
-the four JetBrainsMono Nerd Font faces used by WezTerm under
-`~/.local/share/fonts`. WezTerm itself remains distribution-managed.
+For the automatic flow, choose `1 - Install automatically` during `chezmoi
+init`. Ubuntu uses its apt repositories and the documented Helix PPA. DNF
+systems install Helix and fzf from enabled repositories, with official release
+binaries as fallbacks. Alpine installs Helix and fzf from apk's community
+repository and selects the musl Nushell build.
+
+Nushell 0.114.1, Starship, zoxide, and the pinned compatible Zellij release are
+installed under `~/.local/bin`. A graphical Linux workstation also installs the
+four JetBrainsMono Nerd Font faces under `~/.local/share/fonts`. WezTerm itself
+remains distribution-managed.
 
 Nushell is pinned to 0.114.1 on every platform because its configuration API
 changes between releases. Zellij remains pinned to 0.44.1 because later 0.44.x
 releases have the reattach regression described below.
 
-Other Linux distributions currently stop with an explicit unsupported-platform
-message instead of installing Homebrew or attempting a source build.
+Unsupported distribution families stop with an explicit message instead of
+guessing a package manager, installing Homebrew, or attempting a source build.
 
 ## Starship and zoxide
 
