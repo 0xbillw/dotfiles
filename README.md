@@ -156,6 +156,78 @@ The managed programs are:
 - fzf (used by `zi`)
 - A Nerd Font, preferably JetBrainsMono Nerd Font
 
+### Compatibility manifest
+
+`.chezmoidata/dependencies.yaml` is the only authoritative dependency-version declaration. Platform
+installers render versions, official release URLs, checksums, role applicability, and removal guidance
+from that file; they do not maintain independent version constants.
+
+| Dependency | Declared version | Roles |
+|---|---:|---|
+| Nushell | `0.114.1` | workstation and server |
+| Zellij | `0.44.1` | workstation and server |
+| Helix | `25.07.1` | workstation and server |
+| Starship | `1.25.1` | workstation and server |
+| zoxide | `0.9.9` | workstation and server |
+| fzf | `0.74.1` | workstation and server |
+| WezTerm | `20240203-110809-5046fc22` | workstation only |
+| JetBrainsMono Nerd Font | `3.4.0` | workstation only |
+
+An exact native package is preferred when the platform package manager can guarantee the declared
+version. Otherwise the installer uses a checksum-verified official prebuilt artifact. It never builds
+these tools from source or silently substitutes another version.
+
+Linux WezTerm is the only initial platform exception: WezTerm remains distribution-managed on Linux
+workstations because upstream does not publish one portable artifact covering every supported Linux
+target. This exception ends when an upstream portable artifact is available and verified across the
+declared glibc/musl and x86_64/arm64 targets. Servers never install WezTerm or fonts.
+
+Before changing any managed dependency, setup stages and verifies every applicable package/artifact.
+An unavailable asset blocks all managed changes. If execution fails after mutation begins, successful
+changes remain; the report lists changed, failed, and pending dependencies plus safe removal guidance.
+The next `chezmoi apply` reassesses the observed machine and resumes convergence.
+
+If an installed executable is newer than the declaration, interactive setup offers downgrade, keep as
+unsupported, or cancel. A keep decision is stored locally for that dependency and declared version;
+changing the declaration invalidates the decision. Non-interactive setup never downgrades a newer
+version without consent.
+
+### Verify the active toolchain
+
+Run the version commands in the shell that will use the tools, and also inspect the resolved paths:
+
+```nu
+which nu
+which zellij
+which hx
+which starship
+which zoxide
+which fzf
+nu --version
+zellij --version
+hx --version
+starship --version
+zoxide --version
+fzf --version
+```
+
+On a workstation, also run `wezterm --version`. Font verification checks the four actual installed
+JetBrainsMono Nerd Font files against the target-specific SHA-256 identities in the manifest; matching
+the family name alone is not sufficient.
+
+### Update a managed version
+
+1. Change the dependency version once in `.chezmoidata/dependencies.yaml`.
+2. Update every applicable official URL, archive member, SHA-256, exact native package version, and
+   installed font-file hash in the same record.
+3. Review upstream release notes and shared configuration compatibility.
+4. Run the PowerShell and POSIX manifest validators plus the policy-upgrade mutation tests.
+5. Execute the affected real-platform checks and record verified and deferred targets separately.
+6. Update this table and any approved platform exception before merging.
+
+An exception must declare its rationale, exact target scope, compatible version/range, verification
+evidence, and objective removal condition. Incomplete exceptions fail manifest validation.
+
 ## Font installation notes
 
 For JetBrainsMono Nerd Font, a terminal setup normally needs these four faces:

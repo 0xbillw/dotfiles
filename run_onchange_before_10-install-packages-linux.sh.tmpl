@@ -5,201 +5,78 @@
 set -eu
 
 {{- if not $installPackages }}
-echo "Automatic package installation is disabled; run 'chezmoi init --prompt' to change this machine option."
+echo "Automatic dependency management is disabled; shared configuration remains managed."
 exit 0
 {{- end }}
 
 if [ ! -r /etc/os-release ]; then
-    echo "Cannot identify this Linux distribution." >&2
+    echo "Dependency policy result: target-unsupported (linux/unknown-distribution)." >&2
     exit 1
 fi
-
 . /etc/os-release
 
-if [ "$(id -u)" -eq 0 ]; then
-    run_root() { "$@"; }
-elif command -v sudo >/dev/null 2>&1; then
-    run_root() { sudo "$@"; }
-else
-    echo "Root access or sudo is required to install system packages." >&2
-    exit 1
-fi
-
 case "${ID:-}" in
-    ubuntu)
-        package_family=apt
-        ;;
-    alpine)
-        package_family=apk
-        ;;
-    fedora|rhel|centos|rocky|almalinux|alinux|anolis)
-        package_family=dnf
-        ;;
+    ubuntu) package_family=apt; libc_name=gnu ;;
+    alpine) package_family=apk; libc_name=musl ;;
+    fedora|rhel|centos|rocky|almalinux|alinux|anolis) package_family=dnf; libc_name=gnu ;;
     *)
         case " ${ID_LIKE:-} " in
-            *" rhel "*|*" fedora "*|*" anolis "*) package_family=dnf ;;
+            *" rhel "*|*" fedora "*|*" anolis "*) package_family=dnf; libc_name=gnu ;;
             *)
-                echo "Unsupported Linux distribution: ${PRETTY_NAME:-${ID:-unknown}}." >&2
-                echo "Supported families: Ubuntu (apt), Fedora/RHEL/CentOS Stream/Rocky/Alma/Alibaba Cloud Linux/OpenAnolis (dnf), and Alpine (apk)." >&2
+                echo "Dependency policy result: target-unsupported (${PRETTY_NAME:-${ID:-linux}})." >&2
                 exit 1
                 ;;
         esac
         ;;
 esac
 
-mkdir -p "$HOME/.local/bin"
-tmp_dir="$(mktemp -d)"
-trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
-
 case "$(uname -m)" in
-    x86_64|amd64)
-        linux_arch=x86_64
-        nushell_arch=x86_64
-        zellij_arch=x86_64
-        fzf_arch=amd64
-        ;;
-    aarch64|arm64)
-        linux_arch=aarch64
-        nushell_arch=aarch64
-        zellij_arch=aarch64
-        fzf_arch=arm64
-        ;;
+    x86_64|amd64) policy_arch=x86_64 ;;
+    aarch64|arm64) policy_arch=aarch64 ;;
     *)
-        echo "Unsupported CPU architecture: $(uname -m)" >&2
+        echo "Dependency policy result: target-unsupported (linux/$(uname -m)/$libc_name)." >&2
         exit 1
         ;;
 esac
 
-install_helix_release() {
-    helix_version=25.07.1
-    helix_archive="helix-${helix_version}-${linux_arch}-linux.tar.xz"
-    helix_root="$tmp_dir/helix-${helix_version}-${linux_arch}-linux"
-    curl -fsSL "https://github.com/helix-editor/helix/releases/download/${helix_version}/${helix_archive}" \
-        -o "$tmp_dir/$helix_archive"
-    tar -xJf "$tmp_dir/$helix_archive" -C "$tmp_dir"
-    cp "$helix_root/hx" "$HOME/.local/bin/hx"
-    chmod 0755 "$HOME/.local/bin/hx"
-    mkdir -p "$HOME/.config/helix/runtime"
-    cp -R "$helix_root/runtime/." "$HOME/.config/helix/runtime/"
-}
+policy_target="linux-${policy_arch}-${libc_name}"
+policy_role={{ if $workstation }}workstation{{ else }}server{{ end }}
+policy_package_family=$package_family
+policy_font_dir="$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
 
-install_fzf_release() {
-    fzf_version=0.74.1
-    fzf_archive="fzf-${fzf_version}-linux_${fzf_arch}.tar.gz"
-    curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${fzf_version}/${fzf_archive}" \
-        -o "$tmp_dir/$fzf_archive"
-    tar -xzf "$tmp_dir/$fzf_archive" -C "$HOME/.local/bin" fzf
-    chmod 0755 "$HOME/.local/bin/fzf"
-}
+if [ "$(id -u)" -eq 0 ]; then
+    policy_run_root() { "$@"; }
+elif command -v sudo >/dev/null 2>&1; then
+    policy_run_root() { sudo "$@"; }
+else
+    echo "Root access or sudo is required for native bootstrap packages." >&2
+    exit 1
+fi
 
 case "$package_family" in
     apt)
-        case "${VERSION_ID:-}" in
-            22.04|24.04) ;;
-            *)
-                echo "Unsupported Ubuntu release: ${VERSION_ID:-unknown}. Supported releases: 22.04 and 24.04." >&2
-                exit 1
-                ;;
-        esac
-        run_root apt-get update
-        run_root apt-get install -y ca-certificates curl fzf software-properties-common xz-utils
+        case "${VERSION_ID:-}" in 22.04|24.04) ;; *) echo "Dependency policy result: target-unsupported (ubuntu/${VERSION_ID:-unknown})." >&2; exit 1 ;; esac
+        policy_run_root apt-get update
+        policy_run_root apt-get install -y ca-certificates curl tar unzip xz-utils
 {{- if $workstation }}
-        run_root apt-get install -y fontconfig
+        policy_run_root apt-get install -y fontconfig
 {{- end }}
-        run_root add-apt-repository -y ppa:maveonair/helix-editor
-        run_root apt-get update
-        run_root apt-get install -y helix
-        libc_target=gnu
         ;;
     dnf)
-        if ! command -v dnf >/dev/null 2>&1; then
-            echo "${PRETTY_NAME:-This distribution} was detected as DNF-based, but dnf is not installed." >&2
-            exit 1
-        fi
-        run_root dnf install -y ca-certificates curl gzip tar xz
+        command -v dnf >/dev/null 2>&1 || { echo "DNF family detected but dnf is unavailable." >&2; exit 1; }
+        policy_run_root dnf install -y ca-certificates curl gzip tar unzip xz
 {{- if $workstation }}
-        run_root dnf install -y fontconfig
+        policy_run_root dnf install -y fontconfig
 {{- end }}
-        if ! run_root dnf install -y fzf; then
-            echo "fzf is unavailable from the enabled DNF repositories; installing its official binary."
-            install_fzf_release
-        fi
-        if ! run_root dnf install -y helix; then
-            echo "Helix is unavailable from the enabled DNF repositories; installing its official release."
-            install_helix_release
-        fi
-        libc_target=gnu
         ;;
     apk)
-        if ! command -v apk >/dev/null 2>&1; then
-            echo "Alpine was detected, but apk is not installed." >&2
-            exit 1
-        fi
-        if ! grep -Eq '^[^#].*/community$' /etc/apk/repositories; then
-            # Minimal Alpine images often ship with community commented out,
-            # while both Helix and fzf are published there.
-            run_root sed -i 's|^#\(.*\/community\)$|\1|' /etc/apk/repositories
-        fi
-        if ! grep -Eq '^[^#].*/community$' /etc/apk/repositories; then
-            main_repo="$(grep -E '^[^#].*/main$' /etc/apk/repositories | head -n 1 || true)"
-            if [ -n "$main_repo" ]; then
-                community_repo="${main_repo%/main}/community"
-            else
-                alpine_series="$(printf '%s' "${VERSION_ID:-}" | cut -d. -f1,2)"
-                community_repo="https://dl-cdn.alpinelinux.org/alpine/v${alpine_series}/community"
-            fi
-            printf '%s\n' "$community_repo" | run_root tee -a /etc/apk/repositories >/dev/null
-        fi
-        run_root apk add --no-cache ca-certificates coreutils curl fzf helix tar xz
+        command -v apk >/dev/null 2>&1 || { echo "Alpine detected but apk is unavailable." >&2; exit 1; }
+        policy_run_root apk add --no-cache ca-certificates coreutils curl tar unzip xz
 {{- if $workstation }}
-        run_root apk add --no-cache fontconfig
+        policy_run_root apk add --no-cache fontconfig
 {{- end }}
-        libc_target=musl
         ;;
 esac
 
-# Pin Nushell because its configuration API changes between releases.
-nushell_version=0.114.1
-nushell_target="${nushell_arch}-unknown-linux-${libc_target}"
-nushell_archive="nu-${nushell_version}-${nushell_target}.tar.gz"
-curl -fsSL "https://github.com/nushell/nushell/releases/download/${nushell_version}/${nushell_archive}" \
-    -o "$tmp_dir/$nushell_archive"
-tar -xzf "$tmp_dir/$nushell_archive" -C "$tmp_dir"
-cp "$tmp_dir/nu-${nushell_version}-${nushell_target}/nu" "$HOME/.local/bin/nu"
-chmod 0755 "$HOME/.local/bin/nu"
-
-# Install lightweight official release binaries consistently across Linux.
-curl -fsSL https://starship.rs/install.sh \
-    | sh -s -- --yes --bin-dir "$HOME/.local/bin"
-curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh \
-    | sh
-
-zellij_target="${zellij_arch}-unknown-linux-musl"
-# Zellij 0.44.2/0.44.3 leak OSC replies on reattach; keep 0.44.1 for now.
-curl -fsSL "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-${zellij_target}.tar.gz" \
-    | tar -xz -C "$HOME/.local/bin" zellij
-
-{{- if $workstation }}
-# Install only the four JetBrainsMono Nerd Font faces used by the terminal.
-nerd_fonts_version=v3.4.0
-font_dir="$HOME/.local/share/fonts/JetBrainsMonoNerdFont"
-mkdir -p "$font_dir"
-
-install_font() {
-    font_style="$1"
-    font_file="$2"
-    curl -fsSL \
-        "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/${nerd_fonts_version}/patched-fonts/JetBrainsMono/Ligatures/${font_style}/${font_file}" \
-        -o "$font_dir/$font_file"
-}
-
-install_font Regular JetBrainsMonoNerdFont-Regular.ttf
-install_font Bold JetBrainsMonoNerdFont-Bold.ttf
-install_font Italic JetBrainsMonoNerdFont-Italic.ttf
-install_font BoldItalic JetBrainsMonoNerdFont-BoldItalic.ttf
-fc-cache -f "$font_dir"
-echo "Installed JetBrainsMono Nerd Font ${nerd_fonts_version} for this workstation."
-{{- end }}
-
-echo "Installed terminal dependencies for ${PRETTY_NAME:-${ID:-Linux}} using ${package_family}."
+{{ includeTemplate "dependency-policy-posix.sh.tmpl" . }}
 {{- end }}

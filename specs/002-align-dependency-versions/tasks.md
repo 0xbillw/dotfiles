@@ -21,8 +21,8 @@ independent increment.
 
 **Purpose**: Establish test locations and artifact hygiene without changing installation behavior.
 
-- [ ] T001 Add generated dependency-test staging and fixture-state paths to `.gitignore`
-- [ ] T002 [P] Create cross-platform test fixture conventions and required environment variables in `tests/dependency-policy/README.md`
+- [X] T001 Add generated dependency-test staging and fixture-state paths to `.gitignore`
+- [X] T002 [P] Create cross-platform test fixture conventions and required environment variables in `tests/dependency-policy/README.md`
 
 ---
 
@@ -33,11 +33,11 @@ three platform installers.
 
 **CRITICAL**: No user story implementation begins until this phase is complete.
 
-- [ ] T003 Create all eight exact dependency records, role applicability, install order, executable probes, font family/style plus target-specific installed-file hashes, target mappings, official artifact coordinates, SHA-256 values, and removal guidance in `.chezmoidata/dependencies.yaml`
-- [ ] T004 Add representative workstation/server and OS/architecture/libc rendering inputs in `tests/dependency-policy/fixtures/targets.json`
-- [ ] T005 [P] Add manifest schema, exact-version, target coverage, official-HTTPS, archive and installed-font-file checksum, role, and removal-guidance checks in `tests/dependency-policy/Test-DependencyManifest.ps1`
-- [ ] T006 [P] Add POSIX manifest-render coverage and duplicate installer-version-literal detection in `tests/dependency-policy/test-dependency-manifest.sh`
-- [ ] T007 Run T005 and T006 against `.chezmoidata/dependencies.yaml`, correct all policy-data failures there, and record supported target coverage in `tests/dependency-policy/README.md`
+- [X] T003 Create all eight exact dependency records, role applicability, install order, executable probes, font family/style plus target-specific installed-file hashes, target mappings, official artifact coordinates, SHA-256 values, and removal guidance in `.chezmoidata/dependencies.yaml`
+- [X] T004 Add representative workstation/server and OS/architecture/libc rendering inputs in `tests/dependency-policy/fixtures/targets.json`
+- [X] T005 [P] Add manifest schema, exact-version, target coverage, official-HTTPS, archive and installed-font-file checksum, role, and removal-guidance checks in `tests/dependency-policy/Test-DependencyManifest.ps1`
+- [X] T006 [P] Add POSIX manifest-render coverage and duplicate installer-version-literal detection in `tests/dependency-policy/test-dependency-manifest.sh`
+- [X] T007 Run T005 and T006 against `.chezmoidata/dependencies.yaml`, correct all policy-data failures there, and record supported target coverage in `tests/dependency-policy/README.md`
 
 **Checkpoint**: One valid manifest accounts for every managed dependency and applicable target; all
 later installer work reads from it.
@@ -56,21 +56,21 @@ second apply and confirm zero installation transactions.
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Add Windows fixtures for missing, matching, unavailable, bad artifact/font hash, duplicate-PATH/font, unknown architecture/manager, disabled management, workstation/server, and second-apply cases in `tests/dependency-policy/Test-WindowsDependencyInstall.ps1`
-- [ ] T009 [P] [US1] Add macOS fixtures for missing, matching, unavailable, bad artifact/font hash, duplicate-PATH/font, unknown architecture/manager, disabled management, workstation/server, and second apply in `tests/dependency-policy/test-darwin-dependency-install.sh`
-- [ ] T010 [P] [US1] Add apt/dnf/apk and glibc/musl fixtures for missing, matching, unavailable, wrong/unknown target, bad artifact/font hash, duplicate-PATH/font, disabled management, workstation/server, and second apply in `tests/dependency-policy/test-linux-dependency-install.sh`
-- [ ] T011 [US1] Run T008-T010 before implementation, confirm the new behavioral assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
+- [X] T008 [P] [US1] Add Windows fixtures for missing, matching, unavailable, bad artifact/font hash, duplicate-PATH/font, unknown architecture/manager, disabled management, workstation/server, and second-apply cases in `tests/dependency-policy/Test-WindowsDependencyInstall.ps1`
+- [X] T009 [P] [US1] Add macOS fixtures for missing, matching, unavailable, bad artifact/font hash, duplicate-PATH/font, unknown architecture/manager, disabled management, workstation/server, and second apply in `tests/dependency-policy/test-darwin-dependency-install.sh`
+- [X] T010 [P] [US1] Add apt/dnf/apk and glibc/musl fixtures for missing, matching, unavailable, wrong/unknown target, bad artifact/font hash, duplicate-PATH/font, disabled management, workstation/server, and second apply in `tests/dependency-policy/test-linux-dependency-install.sh`
+- [X] T011 [US1] Run T008-T010 before implementation, confirm the new behavioral assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Render Windows dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown targets, detect active executable/font files, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages.cmd.tmpl`
-- [ ] T013 [P] [US1] Render macOS dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown targets, detect active executable/font files, prefer exact Homebrew packages or official artifacts, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages-darwin.sh.tmpl`
-- [ ] T014 [P] [US1] Render Linux dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown apt/dnf/apk architecture/libc targets, detect active executable/font files, prefer exact native packages or official artifacts, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages-linux.sh.tmpl`
-- [ ] T015 [US1] Make Windows preflight aggregate every unavailable or invalid applicable payload and exit before mutation with dependency, expected version, observed state, target, and next action in `run_onchange_before_10-install-packages.cmd.tmpl`
-- [ ] T016 [US1] Make POSIX preflight aggregate every unavailable or invalid applicable payload and exit before mutation with dependency, expected version, observed state, target, and next action in `run_onchange_before_10-install-packages-darwin.sh.tmpl` and `run_onchange_before_10-install-packages-linux.sh.tmpl`
-- [ ] T017 [P] [US1] Make Nushell integration generation consume and verify manifest-matching Starship and zoxide executables in `run_after_generate-nushell-integrations.cmd.tmpl`
-- [ ] T018 [P] [US1] Make Nushell integration generation consume and verify manifest-matching Starship and zoxide executables in `run_after_generate-nushell-integrations.sh.tmpl`
-- [ ] T019 [US1] Run T008-T010 after implementation and record actual versus deferred Windows/macOS/Linux target results in `tests/dependency-policy/README.md`
+- [X] T012 [P] [US1] Render Windows dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown targets, detect active executable/font files, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages.cmd.tmpl`
+- [X] T013 [P] [US1] Render macOS dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown targets, detect active executable/font files, prefer exact Homebrew packages or official artifacts, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages-darwin.sh.tmpl`
+- [X] T014 [P] [US1] Render Linux dependency versions exclusively from `.chezmoidata/dependencies.yaml`, exit without network/state mutation when management is disabled, reject unknown apt/dnf/apk architecture/libc targets, detect active executable/font files, prefer exact native packages or official artifacts, stage all payloads, verify archive and installed-font hashes, install in manifest order, and verify active results in `run_onchange_before_10-install-packages-linux.sh.tmpl`
+- [X] T015 [US1] Make Windows preflight aggregate every unavailable or invalid applicable payload and exit before mutation with dependency, expected version, observed state, target, and next action in `run_onchange_before_10-install-packages.cmd.tmpl`
+- [X] T016 [US1] Make POSIX preflight aggregate every unavailable or invalid applicable payload and exit before mutation with dependency, expected version, observed state, target, and next action in `run_onchange_before_10-install-packages-darwin.sh.tmpl` and `run_onchange_before_10-install-packages-linux.sh.tmpl`
+- [X] T017 [P] [US1] Make Nushell integration generation consume and verify manifest-matching Starship and zoxide executables in `run_after_generate-nushell-integrations.cmd.tmpl`
+- [X] T018 [P] [US1] Make Nushell integration generation consume and verify manifest-matching Starship and zoxide executables in `run_after_generate-nushell-integrations.sh.tmpl`
+- [X] T019 [US1] Run T008-T010 after implementation and record actual versus deferred Windows/macOS/Linux target results in `tests/dependency-policy/README.md`
 
 **Checkpoint**: User Story 1 is independently usable as the MVP on clean machines and repeat applies.
 
@@ -89,20 +89,20 @@ changed/failed/pending and removal guidance.
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Add Windows older/newer/matching decision, invalid-input retry, retain persistence/invalidation, retained Starship/zoxide integration generation, cancellation, non-interactive, unrelated-installation, and partial-failure cases in `tests/dependency-policy/Test-WindowsReconciliation.ps1`
-- [ ] T021 [P] [US2] Add POSIX older/newer/matching decision, invalid-input retry, retain persistence/invalidation, retained Starship/zoxide integration generation, cancellation, non-interactive, unrelated-installation, and partial-failure cases in `tests/dependency-policy/test-posix-reconciliation.sh`
-- [ ] T022 [US2] Run T020-T021 before implementation, confirm the new reconciliation assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
+- [X] T020 [P] [US2] Add Windows older/newer/matching decision, invalid-input retry, retain persistence/invalidation, retained Starship/zoxide integration generation, cancellation, non-interactive, unrelated-installation, and partial-failure cases in `tests/dependency-policy/Test-WindowsReconciliation.ps1`
+- [X] T021 [P] [US2] Add POSIX older/newer/matching decision, invalid-input retry, retain persistence/invalidation, retained Starship/zoxide integration generation, cancellation, non-interactive, unrelated-installation, and partial-failure cases in `tests/dependency-policy/test-posix-reconciliation.sh`
+- [X] T022 [US2] Run T020-T021 before implementation, confirm the new reconciliation assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `%LOCALAPPDATA%` in `run_onchange_before_10-install-packages.cmd.tmpl`
-- [ ] T024 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `XDG_STATE_HOME` in `run_onchange_before_10-install-packages-darwin.sh.tmpl`
-- [ ] T025 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `XDG_STATE_HOME` in `run_onchange_before_10-install-packages-linux.sh.tmpl`
-- [ ] T026 [US2] Add Windows sequential run journaling and stop-on-failure output grouping changed, failed, and pending dependencies with safe removal commands or official references in `run_onchange_before_10-install-packages.cmd.tmpl`
-- [ ] T027 [US2] Add POSIX sequential run journaling and stop-on-failure output grouping changed, failed, and pending dependencies with safe removal commands or official references in `run_onchange_before_10-install-packages-darwin.sh.tmpl` and `run_onchange_before_10-install-packages-linux.sh.tmpl`
-- [ ] T028 [P] [US2] Make Nushell integration generation accept valid retained Starship/zoxide executables while preserving unsupported status in `run_after_generate-nushell-integrations.cmd.tmpl`
-- [ ] T029 [P] [US2] Make Nushell integration generation accept valid retained Starship/zoxide executables while preserving unsupported status in `run_after_generate-nushell-integrations.sh.tmpl`
-- [ ] T030 [US2] Run T020-T021 after implementation and record preservation, override, retained-integration, non-interactive, retry, and partial-failure results in `tests/dependency-policy/README.md`
+- [X] T023 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `%LOCALAPPDATA%` in `run_onchange_before_10-install-packages.cmd.tmpl`
+- [X] T024 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `XDG_STATE_HOME` in `run_onchange_before_10-install-packages-darwin.sh.tmpl`
+- [X] T025 [P] [US2] Implement exact version comparison, explicit downgrade/keep-unsupported/cancel prompting, invalid-input retry, non-interactive blocking, and per-dependency declared-version retain records under `XDG_STATE_HOME` in `run_onchange_before_10-install-packages-linux.sh.tmpl`
+- [X] T026 [US2] Add Windows sequential run journaling and stop-on-failure output grouping changed, failed, and pending dependencies with safe removal commands or official references in `run_onchange_before_10-install-packages.cmd.tmpl`
+- [X] T027 [US2] Add POSIX sequential run journaling and stop-on-failure output grouping changed, failed, and pending dependencies with safe removal commands or official references in `run_onchange_before_10-install-packages-darwin.sh.tmpl` and `run_onchange_before_10-install-packages-linux.sh.tmpl`
+- [X] T028 [P] [US2] Make Nushell integration generation accept valid retained Starship/zoxide executables while preserving unsupported status in `run_after_generate-nushell-integrations.cmd.tmpl`
+- [X] T029 [P] [US2] Make Nushell integration generation accept valid retained Starship/zoxide executables while preserving unsupported status in `run_after_generate-nushell-integrations.sh.tmpl`
+- [X] T030 [US2] Run T020-T021 after implementation and record preservation, override, retained-integration, non-interactive, retry, and partial-failure results in `tests/dependency-policy/README.md`
 
 **Checkpoint**: User Story 2 independently reconciles an existing machine and clearly represents
 unsupported or partial states.
@@ -121,15 +121,15 @@ platform-local version constants.
 
 ### Tests for User Story 3
 
-- [ ] T031 [P] [US3] Add a mutation-based single-version update, missing-target, stale retain-key, and complete/incomplete exception validation harness in `tests/dependency-policy/Test-PolicyUpgrade.ps1`
-- [ ] T032 [P] [US3] Add POSIX rendered-installer parity checks proving all platform templates consume one changed manifest version in `tests/dependency-policy/test-policy-upgrade.sh`
-- [ ] T033 [US3] Run T031-T032 before implementation, confirm the update-governance assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
+- [X] T031 [P] [US3] Add a mutation-based single-version update, missing-target, stale retain-key, and complete/incomplete exception validation harness in `tests/dependency-policy/Test-PolicyUpgrade.ps1`
+- [X] T032 [P] [US3] Add POSIX rendered-installer parity checks proving all platform templates consume one changed manifest version in `tests/dependency-policy/test-policy-upgrade.sh`
+- [X] T033 [US3] Run T031-T032 before implementation, confirm the update-governance assertions fail, and document the baseline failures in `tests/dependency-policy/README.md`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Extend `tests/dependency-policy/Test-DependencyManifest.ps1` and `tests/dependency-policy/test-dependency-manifest.sh` so a changed manifest version requires complete target artifacts and every exception requires rationale, exact scope, compatibility bound, evidence, and objective removal condition
-- [ ] T035 [US3] Add the authoritative version table, source policy, exception format, upgrade workflow, and active-version commands to `README.md`
-- [ ] T036 [US3] Run T031-T032 after implementation and record the successful single-declaration propagation and release-blocking failure diagnostics in `tests/dependency-policy/README.md`
+- [X] T034 [US3] Extend `tests/dependency-policy/Test-DependencyManifest.ps1` and `tests/dependency-policy/test-dependency-manifest.sh` so a changed manifest version requires complete target artifacts and every exception requires rationale, exact scope, compatibility bound, evidence, and objective removal condition
+- [X] T035 [US3] Add the authoritative version table, source policy, exception format, upgrade workflow, and active-version commands to `README.md`
+- [X] T036 [US3] Run T031-T032 after implementation and record the successful single-declaration propagation and release-blocking failure diagnostics in `tests/dependency-policy/README.md`
 
 **Checkpoint**: User Story 3 makes future compatibility updates reviewable and blocks incomplete
 cross-platform claims.
@@ -140,15 +140,15 @@ cross-platform claims.
 
 **Purpose**: Complete cross-platform quality gates and release evidence.
 
-- [ ] T037 [P] Review all new script output, comments, identifiers, manifest text, tests, and `README.md` changes for English-only repository content
-- [ ] T038 [P] Verify the implementation did not introduce MacPorts, new OS families, Git/SSH/PowerShell management, fallback CJK fonts, or automatic removal of competing installations using `specs/002-align-dependency-versions/spec.md`
-- [ ] T039 Run every static and fixture command in `specs/002-align-dependency-versions/quickstart.md` and update expected commands or outcomes there if implementation details changed
-- [ ] T040 [P] Execute Windows x86_64 workstation and server-profile commands and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/windows-x86_64.md`
-- [ ] T041 [P] Execute macOS x86_64/arm64 workstation and server commands where available and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/macos.md`
-- [ ] T042 [P] Execute apt-based glibc workstation and server commands and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/apt-glibc.md`
-- [ ] T043 [P] Execute dnf-based glibc and apk-based musl server commands and record machine identity, active versions/paths, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/dnf-apk.md`
-- [ ] T044 [P] Execute one supported Linux arm64 target and record machine identity, active versions/paths, idempotency, and every deferred arm64 target in `tests/dependency-policy/evidence/linux-arm64.md`
-- [ ] T045 Consolidate T040-T044 and perform final idempotency, safe-path, user-state preservation, checksum, active-PATH/font, unsupported-target, disabled-management, and constitution review in `tests/dependency-policy/README.md`
+- [X] T037 [P] Review all new script output, comments, identifiers, manifest text, tests, and `README.md` changes for English-only repository content
+- [X] T038 [P] Verify the implementation did not introduce MacPorts, new OS families, Git/SSH/PowerShell management, fallback CJK fonts, or automatic removal of competing installations using `specs/002-align-dependency-versions/spec.md`
+- [X] T039 Run every static and fixture command in `specs/002-align-dependency-versions/quickstart.md` and update expected commands or outcomes there if implementation details changed
+- [X] T040 [P] Execute Windows x86_64 workstation and server-profile commands and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/windows-x86_64.md`
+- [X] T041 [P] Execute macOS x86_64/arm64 workstation and server commands where available and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/macos.md`
+- [X] T042 [P] Execute apt-based glibc workstation and server commands and record machine identity, active versions/paths/font hashes, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/apt-glibc.md`
+- [X] T043 [P] Execute dnf-based glibc and apk-based musl server commands and record machine identity, active versions/paths, idempotency, and verified/deferred status in `tests/dependency-policy/evidence/dnf-apk.md`
+- [X] T044 [P] Execute one supported Linux arm64 target and record machine identity, active versions/paths, idempotency, and every deferred arm64 target in `tests/dependency-policy/evidence/linux-arm64.md`
+- [X] T045 Consolidate T040-T044 and perform final idempotency, safe-path, user-state preservation, checksum, active-PATH/font, unsupported-target, disabled-management, and constitution review in `tests/dependency-policy/README.md`
 
 ---
 

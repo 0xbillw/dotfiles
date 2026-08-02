@@ -7,17 +7,65 @@ autoload_dir="$data_home/nushell/vendor/autoload"
 legacy_starship_init="$autoload_dir/starship.nu"
 starship_init="$HOME/.starship.nu"
 zoxide_init="$HOME/.zoxide.nu"
+policy_bin="$HOME/.local/bin"
+starship_expected='{{ (index .dependencyPolicy.dependencies "starship").version }}'
+zoxide_expected='{{ (index .dependencyPolicy.dependencies "zoxide").version }}'
+policy_state="${XDG_STATE_HOME:-$HOME/.local/state}/cross-platform-terminal-workspace/dependency-state"
 mkdir -p "$autoload_dir"
 rm -f "$legacy_starship_init"
 
-if command -v starship >/dev/null 2>&1; then
-    starship init nu > "$starship_init"
+retain_override_matches() {
+    id=$1
+    declared=$2
+    observed=$3
+    file="$policy_state/$id.state"
+    [ -f "$file" ] &&
+        grep -Fx 'schema=1' "$file" >/dev/null 2>&1 &&
+        grep -Fx "declaredVersion=$declared" "$file" >/dev/null 2>&1 &&
+        grep -Fx "observedVersion=$observed" "$file" >/dev/null 2>&1 &&
+        grep -Fx 'decision=retain-unsupported' "$file" >/dev/null 2>&1
+}
+
+if [ -x "$policy_bin/starship" ]; then
+    starship_bin="$policy_bin/starship"
+elif command -v starship >/dev/null 2>&1; then
+    starship_bin=$(command -v starship)
+else
+    starship_bin=
+fi
+if [ -n "$starship_bin" ]; then
+    starship_version=$($starship_bin --version 2>/dev/null | awk 'NR == 1 { print $2 }')
+    if [ "$starship_version" != "$starship_expected" ]; then
+        if retain_override_matches starship "$starship_expected" "$starship_version"; then
+            echo "Dependency policy result: unsupported (retained Starship $starship_version)." >&2
+        else
+            echo "Starship $starship_version does not match dependency policy $starship_expected." >&2
+            exit 1
+        fi
+    fi
+    "$starship_bin" init nu > "$starship_init"
 else
     printf '%s\n' '# Starship is not installed.' > "$starship_init"
 fi
 
-if command -v zoxide >/dev/null 2>&1; then
-    zoxide init nushell > "$zoxide_init"
+if [ -x "$policy_bin/zoxide" ]; then
+    zoxide_bin="$policy_bin/zoxide"
+elif command -v zoxide >/dev/null 2>&1; then
+    zoxide_bin=$(command -v zoxide)
+else
+    zoxide_bin=
+fi
+if [ -n "$zoxide_bin" ]; then
+    zoxide_version=$($zoxide_bin --version 2>/dev/null | awk 'NR == 1 { print $2 }')
+    if [ "$zoxide_version" != "$zoxide_expected" ]; then
+        if retain_override_matches zoxide "$zoxide_expected" "$zoxide_version"; then
+            echo "Dependency policy result: unsupported (retained zoxide $zoxide_version)." >&2
+        else
+            echo "zoxide $zoxide_version does not match dependency policy $zoxide_expected." >&2
+            exit 1
+        fi
+    fi
+    "$zoxide_bin" init nushell > "$zoxide_init"
 else
     printf '%s\n' '# zoxide is not installed.' > "$zoxide_init"
 fi

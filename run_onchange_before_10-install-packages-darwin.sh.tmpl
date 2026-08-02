@@ -5,47 +5,30 @@
 set -eu
 
 {{- if not $installPackages }}
-echo "Automatic package installation is disabled; run 'chezmoi init --prompt' to change this machine option."
+echo "Automatic dependency management is disabled; shared configuration remains managed."
 exit 0
 {{- end }}
 
-if ! command -v brew >/dev/null 2>&1; then
-    echo "Installing Homebrew for macOS package management..."
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-
-if command -v brew >/dev/null 2>&1; then
-    brew_bin="$(command -v brew)"
-elif [ -x /opt/homebrew/bin/brew ]; then
-    brew_bin=/opt/homebrew/bin/brew
-else
-    brew_bin=/usr/local/bin/brew
-fi
-
-eval "$("$brew_bin" shellenv)"
-"$brew_bin" update
-"$brew_bin" install helix zellij starship zoxide fzf
-
-# Pin Nushell because its configuration API changes between releases.
-nushell_version=0.114.1
 case "$(uname -m)" in
-    x86_64|amd64) nushell_target=x86_64-apple-darwin ;;
-    arm64|aarch64) nushell_target=aarch64-apple-darwin ;;
+    x86_64|amd64) policy_target=darwin-x86_64 ;;
+    arm64|aarch64) policy_target=darwin-aarch64 ;;
     *)
-        echo "Unsupported CPU architecture for Nushell: $(uname -m)" >&2
+        echo "Dependency policy result: target-unsupported (darwin/$(uname -m))." >&2
         exit 1
         ;;
 esac
-nushell_archive="nu-${nushell_version}-${nushell_target}.tar.gz"
-tmp_dir="$(mktemp -d)"
-trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
-curl -fsSL "https://github.com/nushell/nushell/releases/download/${nushell_version}/${nushell_archive}" \
-    -o "$tmp_dir/$nushell_archive"
-tar -xzf "$tmp_dir/$nushell_archive" -C "$tmp_dir"
-mkdir -p "$HOME/.local/bin"
-install -m 0755 "$tmp_dir/nu-${nushell_version}-${nushell_target}/nu" "$HOME/.local/bin/nu"
 
-{{- if $workstation }}
-"$brew_bin" install --cask wezterm font-jetbrains-mono-nerd-font
-{{- end }}
+policy_role={{ if $workstation }}workstation{{ else }}server{{ end }}
+policy_package_family=homebrew
+policy_font_dir="$HOME/Library/Fonts/JetBrainsMonoNerdFont"
+policy_run_root() { "$@"; }
+
+for command_name in curl tar unzip install shasum; do
+    command -v "$command_name" >/dev/null 2>&1 || {
+        echo "Required bootstrap command is missing: $command_name" >&2
+        exit 1
+    }
+done
+
+{{ includeTemplate "dependency-policy-posix.sh.tmpl" . }}
 {{- end }}

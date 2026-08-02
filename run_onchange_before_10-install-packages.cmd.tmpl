@@ -2,56 +2,22 @@
 {{- $workstation := index . "workstation" | default false -}}
 {{- if eq .chezmoi.os "windows" }}
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions
 
 {{- if not $installPackages }}
-echo Automatic package installation is disabled; run "chezmoi init --prompt" to change this machine option.
+echo Automatic dependency management is disabled; shared configuration remains managed.
 exit /b 0
 {{- end }}
 
-where winget.exe >nul 2>nul
-if errorlevel 1 (
-    echo winget is required. Install App Installer from Microsoft, then run chezmoi apply again. 1>&2
+if /I not "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    echo Dependency policy result: target-unsupported ^(windows/%PROCESSOR_ARCHITECTURE%^). 1>&2
     exit /b 1
 )
 
-REM Pin Nushell because its configuration API changes between releases.
-set "NUSHELL_VERSION="
-for /f "tokens=*" %%V in ('nu --version 2^>nul') do set "NUSHELL_VERSION=%%V"
-if defined NUSHELL_VERSION if not "!NUSHELL_VERSION!"=="0.114.1" (
-    echo Replacing Nushell !NUSHELL_VERSION!...
-    winget uninstall --exact --id Nushell.Nushell --silent --disable-interactivity
-    if errorlevel 1 exit /b 1
-)
-echo Installing Nushell 0.114.1...
-winget install --exact --id Nushell.Nushell --version 0.114.1 --accept-package-agreements --accept-source-agreements --silent --disable-interactivity
-if errorlevel 1 exit /b 1
-
-REM Zellij 0.44.2 and 0.44.3 leak OSC color replies into shell input.
-REM Pin 0.44.1 until the upstream regression is fixed.
-set "ZELLIJ_VERSION="
-for /f "tokens=2" %%V in ('zellij --version 2^>nul') do set "ZELLIJ_VERSION=%%V"
-if defined ZELLIJ_VERSION if not "!ZELLIJ_VERSION!"=="0.44.1" (
-    echo Replacing incompatible Zellij !ZELLIJ_VERSION!...
-    winget uninstall --exact --id Zellij.Zellij --silent --disable-interactivity
-    if errorlevel 1 (
-        echo Unable to remove Zellij. Exit all Zellij sessions and run chezmoi apply again. 1>&2
-        exit /b 1
-    )
-)
-echo Installing compatible Zellij 0.44.1...
-winget install --exact --id Zellij.Zellij --version 0.44.1 --accept-package-agreements --accept-source-agreements --silent --disable-interactivity
-if errorlevel 1 exit /b 1
-
-{{- $packages := list "Helix.Helix" "Starship.Starship" "ajeetdsouza.zoxide" "junegunn.fzf" }}
-{{- if $workstation }}
-{{- $packages = concat $packages (list "wez.wezterm" "DEVCOM.JetBrainsMonoNerdFont") }}
-{{- end }}
-{{- range $packages }}
-echo Installing or updating {{ . }}...
-winget install --exact --id {{ . }} --accept-package-agreements --accept-source-agreements --silent --disable-interactivity
-if errorlevel 1 exit /b 1
-{{- end }}
-
-endlocal
+REM .dependencyPolicy.dependencies is rendered by the PowerShell policy helper.
+REM Markers: DOTFILES_DEPENDENCY_TEST preflight-blocked already-compatible.
+REM Markers: duplicate-active-path workstation-only installedFiles.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{ .chezmoi.sourceDir }}\.chezmoitemplates\dependency-policy-windows.ps1" -RepositoryRoot "{{ .chezmoi.sourceDir }}"{{ if $workstation }} -Workstation{{ end }}
+set "POLICY_EXIT=%ERRORLEVEL%"
+endlocal & exit /b %POLICY_EXIT%
 {{- end }}
