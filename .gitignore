@@ -4,3 +4,6 @@ Thumbs.db
 *.tmp
 /bin/
 __pycache__
+.dependency-policy-staging/
+tests/dependency-policy/.state/
+tests/dependency-policy/.tmp/

@@ -1,6 +1,6 @@
 {{- if eq .chezmoi.os "windows" }}
 @echo off
-setlocal
+setlocal EnableExtensions EnableDelayedExpansion
 
 if defined XDG_DATA_HOME (
     set "NU_DATA_DIR=%XDG_DATA_HOME%\nushell"
@@ -11,23 +11,59 @@ set "AUTOLOAD_DIR=%NU_DATA_DIR%\vendor\autoload"
 set "LEGACY_STARSHIP_INIT=%AUTOLOAD_DIR%\starship.nu"
 set "STARSHIP_INIT=%USERPROFILE%\.starship.nu"
 set "ZOXIDE_INIT=%USERPROFILE%\.zoxide.nu"
+set "POLICY_BIN=%USERPROFILE%\.local\bin"
+set "STARSHIP_EXPECTED={{ (index .dependencyPolicy.dependencies "starship").version }}"
+set "ZOXIDE_EXPECTED={{ (index .dependencyPolicy.dependencies "zoxide").version }}"
+set "POLICY_STATE=%LOCALAPPDATA%\cross-platform-terminal-workspace\dependency-state"
 
 if not exist "%AUTOLOAD_DIR%" mkdir "%AUTOLOAD_DIR%"
 if exist "%LEGACY_STARSHIP_INIT%" del /q "%LEGACY_STARSHIP_INIT%"
 
-where starship.exe >nul 2>nul
-if errorlevel 1 (
+set "STARSHIP_EXE=%POLICY_BIN%\starship.exe"
+if not exist "%STARSHIP_EXE%" for /f "delims=" %%P in ('where starship.exe 2^>nul') do if not defined STARSHIP_FOUND set "STARSHIP_FOUND=%%P"
+if not exist "%STARSHIP_EXE%" set "STARSHIP_EXE=%STARSHIP_FOUND%"
+if not defined STARSHIP_EXE (
     echo # Starship is not installed.>"%STARSHIP_INIT%"
 ) else (
-    starship init nu >"%STARSHIP_INIT%"
+    set "STARSHIP_VERSION="
+    for /f "tokens=2" %%V in ('"%STARSHIP_EXE%" --version 2^>nul') do if not defined STARSHIP_VERSION set "STARSHIP_VERSION=%%V"
+    if not "!STARSHIP_VERSION!"=="%STARSHIP_EXPECTED%" (
+        set "RETAIN_FILE=%POLICY_STATE%\starship.state"
+        findstr /x /c:"schema=1" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"declaredVersion=%STARSHIP_EXPECTED%" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"observedVersion=!STARSHIP_VERSION!" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"decision=retain-unsupported" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        echo Dependency policy result: unsupported ^(retained Starship !STARSHIP_VERSION!^). 1>&2
+    )
+    "%STARSHIP_EXE%" init nu >"%STARSHIP_INIT%"
     if errorlevel 1 exit /b 1
 )
 
-where zoxide.exe >nul 2>nul
-if errorlevel 1 (
+set "ZOXIDE_EXE=%POLICY_BIN%\zoxide.exe"
+if not exist "%ZOXIDE_EXE%" for /f "delims=" %%P in ('where zoxide.exe 2^>nul') do if not defined ZOXIDE_FOUND set "ZOXIDE_FOUND=%%P"
+if not exist "%ZOXIDE_EXE%" set "ZOXIDE_EXE=%ZOXIDE_FOUND%"
+if not defined ZOXIDE_EXE (
     echo # zoxide is not installed.>"%ZOXIDE_INIT%"
 ) else (
-    zoxide init nushell >"%ZOXIDE_INIT%"
+    set "ZOXIDE_VERSION="
+    for /f "tokens=2" %%V in ('"%ZOXIDE_EXE%" --version 2^>nul') do if not defined ZOXIDE_VERSION set "ZOXIDE_VERSION=%%V"
+    if not "!ZOXIDE_VERSION!"=="%ZOXIDE_EXPECTED%" (
+        set "RETAIN_FILE=%POLICY_STATE%\zoxide.state"
+        findstr /x /c:"schema=1" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"declaredVersion=%ZOXIDE_EXPECTED%" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"observedVersion=!ZOXIDE_VERSION!" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        findstr /x /c:"decision=retain-unsupported" "!RETAIN_FILE!" >nul 2>nul
+        if errorlevel 1 exit /b 1
+        echo Dependency policy result: unsupported ^(retained zoxide !ZOXIDE_VERSION!^). 1>&2
+    )
+    "%ZOXIDE_EXE%" init nushell >"%ZOXIDE_INIT%"
     if errorlevel 1 exit /b 1
 )
 

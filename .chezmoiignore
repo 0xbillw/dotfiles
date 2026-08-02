@@ -1,4 +1,9 @@
 README.md
+.agents
+.specify
+specs
+tests
+.gitignore
 
 {{- $workstation := index . "workstation" | default false }}
 {{- if not $workstation }}

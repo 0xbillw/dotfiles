@@ -1,0 +1,390 @@
+# dependency-policy markers: target-unsupported preflight-blocked already-compatible
+# dependency-policy markers: duplicate-active-path workstation-only installedFiles
+# DOTFILES_DEPENDENCY_TEST is reserved for isolated fixture copies.
+
+policy_state_root="${XDG_STATE_HOME:-$HOME/.local/state}/cross-platform-terminal-workspace/dependency-state"
+policy_bin_dir="$HOME/.local/bin"
+policy_stage_dir=$(mktemp -d)
+policy_records_file="$policy_stage_dir/records"
+policy_plan_file="$policy_stage_dir/plan"
+policy_failures_file="$policy_stage_dir/failures"
+policy_pending_overrides="$policy_stage_dir/pending-overrides"
+policy_changed_file="$policy_stage_dir/changed"
+policy_pending_file="$policy_stage_dir/pending"
+trap 'rm -rf "$policy_stage_dir"' EXIT HUP INT TERM
+mkdir -p "$policy_bin_dir" "$policy_state_root"
+PATH="$policy_bin_dir:$PATH"
+export PATH
+: > "$policy_failures_file"
+: > "$policy_pending_overrides"
+: > "$policy_changed_file"
+: > "$policy_pending_file"
+
+cat > "$policy_records_file" <<'DOTFILES_DEPENDENCY_POLICY'
+{{ $workstation := index . "workstation" | default false }}
+{{ $ids := list "nushell" "zellij" "helix" "starship" "zoxide" "fzf" "wezterm" "jetbrainsmono-nerd-font" }}
+{{ range $id := $ids }}
+{{   $dep := index $.dependencyPolicy.dependencies $id }}
+{{   if or $workstation (has "server" $dep.roles) }}
+{{     range $targetName, $target := $dep.targets }}
+{{       $probe := index $dep "versionProbe" | default dict }}
+{{ $targetName }}|{{ $id }}|{{ $dep.displayName }}|{{ $dep.version }}|{{ $dep.kind }}|{{ $target.strategy }}|{{ index $target "archive" | default "" }}|{{ index $target "member" | default "" }}|{{ index $target "url" | default "" }}|{{ index $target "sha256" | default "" }}|{{ index $target "package" | default "" }}|{{ index $target "packageVersion" | default "" }}|{{ index $probe "command" | default "" }}|{{ index $probe "parser" | default "" }}|{{ if eq $dep.kind "font" }}{{ range $name, $hash := index $target "installedFiles" }}{{ $name }}={{ $hash }},{{ end }}{{ end }}|{{ index $dep.removeGuidance "posix" }}
+{{     end }}
+{{   end }}
+{{ end }}
+DOTFILES_DEPENDENCY_POLICY
+
+normalize_version() {
+    parser=$1
+    raw=$2
+    case "$parser" in
+        plain) printf '%s\n' "$raw" | awk '{print $1}' ;;
+        first-token) printf '%s\n' "$raw" | awk '{print $1}' ;;
+        second-token) printf '%s\n' "$raw" | awk '{print $2}' ;;
+        *) printf '%s\n' "$raw" ;;
+    esac
+}
+
+observed_version() {
+    id=$1
+    command_name=$2
+    parser=$3
+    case "$id" in
+        jetbrainsmono-nerd-font)
+            printf '%s\n' missing
+            return
+            ;;
+    esac
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        printf '%s\n' missing
+        return
+    fi
+    raw=$($command_name --version 2>/dev/null | head -n 1 || true)
+    normalize_version "$parser" "$raw"
+}
+
+hash_file() {
+    file=$1
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$file" | awk '{print $1}'
+    else
+        shasum -a 256 "$file" | awk '{print $1}'
+    fi
+}
+
+font_is_compatible() {
+    hashes=$1
+    [ -n "$hashes" ] || return 1
+    old_ifs=$IFS
+    IFS=,
+    for item in $hashes; do
+        [ -n "$item" ] || continue
+        name=${item%%=*}
+        expected=${item#*=}
+        file="$policy_font_dir/$name"
+        [ -f "$file" ] || { IFS=$old_ifs; return 1; }
+        actual=$(hash_file "$file")
+        [ "$actual" = "$expected" ] || { IFS=$old_ifs; return 1; }
+    done
+    IFS=$old_ifs
+    return 0
+}
+
+version_relation() {
+    observed=$1
+    expected=$2
+    awk -v observed="$observed" -v expected="$expected" 'BEGIN {
+        on = split(observed, o, /[^0-9]+/)
+        en = split(expected, e, /[^0-9]+/)
+        n = on > en ? on : en
+        for (i = 1; i <= n; i++) {
+            ov = o[i] + 0
+            ev = e[i] + 0
+            if (ov > ev) { print "newer"; exit }
+            if (ov < ev) { print "older"; exit }
+        }
+        print "different"
+    }'
+}
+
+retain_override_matches() {
+    id=$1
+    declared=$2
+    observed=$3
+    file="$policy_state_root/$id.state"
+    [ -f "$file" ] || return 1
+    grep -Fx 'schema=1' "$file" >/dev/null 2>&1 &&
+        grep -Fx "dependencyId=$id" "$file" >/dev/null 2>&1 &&
+        grep -Fx "declaredVersion=$declared" "$file" >/dev/null 2>&1 &&
+        grep -Fx "observedVersion=$observed" "$file" >/dev/null 2>&1 &&
+        grep -Fx 'decision=retain-unsupported' "$file" >/dev/null 2>&1
+}
+
+queue_retain_override() {
+    id=$1
+    declared=$2
+    observed=$3
+    printf '%s|%s|%s\n' "$id" "$declared" "$observed" >> "$policy_pending_overrides"
+}
+
+persist_retain_overrides() {
+    while IFS='|' read -r id declared observed; do
+        [ -n "$id" ] || continue
+        temporary="$policy_state_root/$id.state.tmp"
+        {
+            echo 'schema=1'
+            echo "dependencyId=$id"
+            echo "declaredVersion=$declared"
+            echo "observedVersion=$observed"
+            echo 'decision=retain-unsupported'
+        } > "$temporary"
+        mv "$temporary" "$policy_state_root/$id.state"
+    done < "$policy_pending_overrides"
+}
+
+choose_newer_action() {
+    display=$1
+    expected=$2
+    observed=$3
+    active_path=$4
+    if [ ! -r /dev/tty ] || [ ! -w /dev/tty ]; then
+        echo "Dependency policy result: interaction-required." >&2
+        printf 'Dependency: %s\nExpected: %s\nObserved: %s (%s)\nTarget: %s/%s\nNext action: rerun chezmoi apply from an interactive terminal.\n' \
+            "$display" "$expected" "$observed" "$active_path" "$policy_target" "$policy_role" >&2
+        return 2
+    fi
+    while :; do
+        printf '%s\n' "$display $observed is newer than declared version $expected." >/dev/tty
+        printf '%s' 'Choose 1) downgrade, 2) keep unsupported, or 3) cancel: ' >/dev/tty
+        IFS= read -r choice </dev/tty || return 2
+        case "$choice" in
+            1|downgrade) echo downgrade; return 0 ;;
+            2|keep) echo retain-unsupported; return 0 ;;
+            3|cancel) echo cancelled; return 0 ;;
+            *) echo 'Invalid choice. Enter 1, 2, or 3.' >/dev/tty ;;
+        esac
+    done
+}
+
+: > "$policy_plan_file"
+policy_needs_change=0
+policy_unsupported=0
+while IFS='|' read -r record_target id display expected kind strategy archive member url sha package package_version command_name parser font_hashes removal; do
+    [ "$record_target" = "$policy_target" ] || continue
+    if [ "$strategy" = platform-exception ]; then
+        printf '%s|%s|%s|%s|%s|||||||%s|exception|%s\n' "$id" "$display" "$expected" exception "$strategy" "$font_hashes" "$removal" >> "$policy_plan_file"
+        continue
+    fi
+    if [ "$kind" = font ]; then
+        if font_is_compatible "$font_hashes"; then
+            observed=$expected
+        else
+            observed=missing-or-different
+        fi
+    else
+        observed=$(observed_version "$id" "$command_name" "$parser")
+    fi
+    if [ "$observed" = "$expected" ]; then
+        action=already-compatible
+    elif [ "$observed" != missing ] && [ "$observed" != missing-or-different ] && [ "$(version_relation "$observed" "$expected")" = newer ]; then
+        active_path=$(command -v "$command_name" 2>/dev/null || true)
+        if retain_override_matches "$id" "$expected" "$observed"; then
+            action=retain-unsupported
+            policy_unsupported=1
+        else
+            if ! choice=$(choose_newer_action "$display" "$expected" "$observed" "$active_path"); then
+                exit 1
+            fi
+            case "$choice" in
+                downgrade) action=install; policy_needs_change=1 ;;
+                retain-unsupported) action=retain-unsupported; policy_unsupported=1; queue_retain_override "$id" "$expected" "$observed" ;;
+                cancelled) echo 'Dependency policy result: cancelled.'; exit 0 ;;
+            esac
+        fi
+    else
+        action=install
+        policy_needs_change=1
+    fi
+    printf '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
+        "$id" "$display" "$expected" "$observed" "$strategy" "$archive" "$member" "$url" "$sha" "$package" "$package_version" "$font_hashes" "$action" "$removal" >> "$policy_plan_file"
+done < "$policy_records_file"
+
+if [ "$policy_needs_change" -eq 0 ]; then
+    persist_retain_overrides
+    if [ "$policy_unsupported" -eq 1 ]; then
+        echo "Dependency policy result: unsupported (retained newer dependency)."
+    else
+        echo "Dependency policy result: already-compatible."
+    fi
+    exit 0
+fi
+
+# Full preflight stages every applicable official artifact before any managed dependency changes.
+while IFS='|' read -r id display expected observed strategy archive member url sha package package_version font_hashes action removal; do
+    [ "$strategy" = platform-exception ] && continue
+    case "$strategy" in
+        official-artifact)
+            destination="$policy_stage_dir/$id.archive"
+            if ! curl -fsSL "$url" -o "$destination"; then
+                printf '%s|%s|%s\n' "$display" "$expected" download-failed >> "$policy_failures_file"
+                continue
+            fi
+            actual=$(hash_file "$destination")
+            if [ "$actual" != "$sha" ]; then
+                printf '%s|%s|%s\n' "$display" "$expected" checksum-mismatch >> "$policy_failures_file"
+            fi
+            ;;
+        native-package)
+            if [ "$policy_package_family" != apk ] || ! apk policy "$package" 2>/dev/null | grep -F "$package_version" >/dev/null 2>&1; then
+                printf '%s|%s|%s\n' "$display" "$expected" exact-package-unavailable >> "$policy_failures_file"
+            fi
+            ;;
+    esac
+done < "$policy_plan_file"
+
+if [ -s "$policy_failures_file" ]; then
+    echo "Dependency policy result: preflight-blocked." >&2
+    while IFS='|' read -r display expected reason; do
+        printf 'Dependency: %s\nExpected: %s\nObserved: unavailable (%s)\nTarget: %s/%s\nNext action: verify the declared release asset and network access.\n' \
+            "$display" "$expected" "$reason" "$policy_target" "$policy_role" >&2
+    done < "$policy_failures_file"
+    exit 1
+fi
+
+persist_retain_overrides
+
+extract_artifact() {
+    archive=$1
+    source_file=$2
+    destination=$3
+    mkdir -p "$destination"
+    case "$archive" in
+        tar.gz) tar -xzf "$source_file" -C "$destination" ;;
+        tar.xz) tar -xJf "$source_file" -C "$destination" ;;
+        zip) unzip -q "$source_file" -d "$destination" ;;
+        *) return 1 ;;
+    esac
+}
+
+install_font_artifact() {
+    extracted=$1
+    hashes=$2
+    mkdir -p "$policy_font_dir"
+    old_ifs=$IFS
+    IFS=,
+    for item in $hashes; do
+        [ -n "$item" ] || continue
+        name=${item%%=*}
+        expected=${item#*=}
+        source=$(find "$extracted" -type f -name "$name" -print | head -n 1)
+        [ -n "$source" ] || { IFS=$old_ifs; return 1; }
+        actual=$(hash_file "$source")
+        [ "$actual" = "$expected" ] || { IFS=$old_ifs; return 1; }
+        install -m 0644 "$source" "$policy_font_dir/$name"
+    done
+    IFS=$old_ifs
+    if command -v fc-cache >/dev/null 2>&1; then
+        fc-cache -f "$policy_font_dir" >/dev/null 2>&1 || true
+    fi
+}
+
+while IFS='|' read -r id display expected observed strategy archive member url sha package package_version font_hashes action removal; do
+    [ "$action" = install ] && printf '%s|%s|%s\n' "$id" "$display" "$removal" >> "$policy_pending_file"
+done < "$policy_plan_file"
+
+install_policy_item() {
+    id=$1
+    display=$2
+    strategy=$3
+    archive=$4
+    member=$5
+    package=$6
+    package_version=$7
+    font_hashes=$8
+    case "$strategy" in
+        native-package)
+            policy_run_root apk add --no-cache "$package=$package_version"
+            ;;
+        official-artifact)
+            extracted="$policy_stage_dir/extracted-$id"
+            extract_artifact "$archive" "$policy_stage_dir/$id.archive" "$extracted"
+            if [ "$id" = jetbrainsmono-nerd-font ]; then
+                install_font_artifact "$extracted" "$font_hashes"
+            elif [ "$id" = wezterm ]; then
+                mkdir -p "$HOME/Applications"
+                app=$(find "$extracted" -type d -name WezTerm.app -print | head -n 1)
+                [ -n "$app" ] || { echo "WezTerm.app was not found in the staged archive." >&2; return 1; }
+                rm -rf "$HOME/Applications/WezTerm.app"
+                cp -R "$app" "$HOME/Applications/WezTerm.app"
+                wezterm_cli="$HOME/Applications/WezTerm.app/Contents/MacOS/wezterm"
+                [ -x "$wezterm_cli" ] || wezterm_cli="$HOME/Applications/WezTerm.app/Contents/MacOS/wezterm-gui"
+                [ -x "$wezterm_cli" ] || { echo "WezTerm executable was not found in the installed app." >&2; return 1; }
+                ln -sf "$wezterm_cli" "$policy_bin_dir/wezterm"
+            else
+                source="$extracted/$member"
+                [ -f "$source" ] || { echo "$display artifact member is missing: $member" >&2; return 1; }
+                binary_name=$(case "$id" in nushell) echo nu ;; helix) echo hx ;; *) echo "$id" ;; esac)
+                install -m 0755 "$source" "$policy_bin_dir/$binary_name"
+                if [ "$id" = helix ]; then
+                    runtime=$(find "$extracted" -type d -name runtime -print | head -n 1)
+                    if [ -n "$runtime" ]; then
+                        rm -rf "$HOME/.config/helix/runtime"
+                        mkdir -p "$HOME/.config/helix"
+                        cp -R "$runtime" "$HOME/.config/helix/runtime"
+                    fi
+                fi
+            fi
+            ;;
+    esac
+}
+
+while IFS='|' read -r id display expected observed strategy archive member url sha package package_version font_hashes action removal; do
+    [ "$action" = install ] || continue
+    if ! install_policy_item "$id" "$display" "$strategy" "$archive" "$member" "$package" "$package_version" "$font_hashes"; then
+        echo 'Dependency policy result: partial-failure.' >&2
+        echo 'Changed:' >&2
+        if [ -s "$policy_changed_file" ]; then
+            while IFS='|' read -r changed_id changed_display changed_removal; do
+                printf '  %s\n  Removal guidance: %s\n' "$changed_display" "$changed_removal" >&2
+            done < "$policy_changed_file"
+        else
+            echo '  (none)' >&2
+        fi
+        echo 'Failed:' >&2
+        printf '  %s\n' "$display" >&2
+        echo 'Pending:' >&2
+        while IFS='|' read -r pending_id pending_display pending_removal; do
+            [ "$pending_id" = "$id" ] && continue
+            grep -F "${pending_id}|" "$policy_changed_file" >/dev/null 2>&1 && continue
+            printf '  %s\n' "$pending_display" >&2
+        done < "$policy_pending_file"
+        echo 'The next chezmoi apply reassesses observed state and resumes convergence.' >&2
+        exit 1
+    fi
+    printf '%s|%s|%s\n' "$id" "$display" "$removal" >> "$policy_changed_file"
+done < "$policy_plan_file"
+
+policy_verify_failed=0
+while IFS='|' read -r id display expected observed strategy archive member url sha package package_version font_hashes action removal; do
+    [ "$strategy" = platform-exception ] && continue
+    [ "$action" = retain-unsupported ] && continue
+    if [ "$id" = jetbrainsmono-nerd-font ]; then
+        font_is_compatible "$font_hashes" || policy_verify_failed=1
+    else
+        command_name=$(case "$id" in nushell) echo nu ;; helix) echo hx ;; *) echo "$id" ;; esac)
+        parser=$(case "$id" in nushell) echo plain ;; fzf) echo first-token ;; *) echo second-token ;; esac)
+        actual=$(observed_version "$id" "$command_name" "$parser")
+        [ "$actual" = "$expected" ] || policy_verify_failed=1
+    fi
+done < "$policy_plan_file"
+
+if [ "$policy_verify_failed" -ne 0 ]; then
+    echo "Dependency policy verification failed after installation." >&2
+    exit 1
+fi
+
+if [ "$policy_unsupported" -eq 1 ]; then
+    echo "Dependency policy result: unsupported (retained newer dependency; $policy_target/$policy_role)."
+else
+    echo "Dependency policy result: compatible ($policy_target/$policy_role)."
+fi

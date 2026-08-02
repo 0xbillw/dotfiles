@@ -1,0 +1,163 @@
+dependencyPolicy:
+  schema: 1
+  supportedTargets:
+    - windows-x86_64
+    - darwin-x86_64
+    - darwin-aarch64
+    - linux-x86_64-gnu
+    - linux-aarch64-gnu
+    - linux-x86_64-musl
+    - linux-aarch64-musl
+  dependencies:
+    nushell:
+      displayName: Nushell
+      version: 0.114.1
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 10
+      versionProbe: { command: nu, args: [--version], parser: plain }
+      removeGuidance:
+        windows: "Remove-Item -LiteralPath $HOME\\.local\\bin\\nu.exe"
+        posix: "rm -f -- $HOME/.local/bin/nu"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: nu.exe, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-x86_64-pc-windows-msvc.zip", sha256: 71a88cb74f51a9fdd91003273fb1f3361d7b393fb3a03014f43e5f111df9666f }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-x86_64-apple-darwin/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-x86_64-apple-darwin.tar.gz", sha256: 4659a78545b7f6a303e661fe3bd276a765c64ccde67112d32045be5fe075f206 }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-aarch64-apple-darwin/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-aarch64-apple-darwin.tar.gz", sha256: cb0ac9b97b985cd217a952f44438a14d2df2a95504d9bd8bc01ec73e1351b179 }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-x86_64-unknown-linux-gnu/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-x86_64-unknown-linux-gnu.tar.gz", sha256: 8802b26edcdf1a64477567b5ce909fbae3d72d731c8f0847892ea16c6fa73c53 }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-aarch64-unknown-linux-gnu/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-aarch64-unknown-linux-gnu.tar.gz", sha256: 39944812ee619736fd50828e66c96b91747c1e189ccddac89c3ac1a02e0614f2 }
+        linux-x86_64-musl: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-x86_64-unknown-linux-musl/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-x86_64-unknown-linux-musl.tar.gz", sha256: ce3a1c5a07c784098b5675224a165e73a45f0f720a8392791d7c3a5b4720255e }
+        linux-aarch64-musl: { strategy: official-artifact, archive: tar.gz, member: nu-0.114.1-aarch64-unknown-linux-musl/nu, url: "https://github.com/nushell/nushell/releases/download/0.114.1/nu-0.114.1-aarch64-unknown-linux-musl.tar.gz", sha256: 4f9e880e7bbf8ee58f3860ef49f453eb2628965b6f2c880fb03d4775f290b536 }
+    zellij:
+      displayName: Zellij
+      version: 0.44.1
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 20
+      versionProbe: { command: zellij, args: [--version], parser: second-token }
+      removeGuidance:
+        windows: "Remove-Item -LiteralPath $HOME\\.local\\bin\\zellij.exe"
+        posix: "rm -f -- $HOME/.local/bin/zellij"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: zellij.exe, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-x86_64-pc-windows-msvc.zip", sha256: 69d7a913de40388bdb64a440b82e6ed2ac4c7232e88d0899b085c88550ec8b8f }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-x86_64-apple-darwin.tar.gz", sha256: 590071e02f7733d25201ec9a97c5bd661ac7da3cbdf2ae52a11685b36654b7dc }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-aarch64-apple-darwin.tar.gz", sha256: 544c19a9353f0ecc52877ef1e80b1c1dcbf8f258b4817077f9520099c12cc30c }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-x86_64-unknown-linux-musl.tar.gz", sha256: 669825021d529fca5d939888263c9d2a90762145191fa07581a15250e8af2b49 }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-aarch64-unknown-linux-musl.tar.gz", sha256: 6f028bb569d29be968c961249c5f80d5336ad4ad4b3cd79af8e32afab57b0948 }
+        linux-x86_64-musl: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-x86_64-unknown-linux-musl.tar.gz", sha256: 669825021d529fca5d939888263c9d2a90762145191fa07581a15250e8af2b49 }
+        linux-aarch64-musl: { strategy: official-artifact, archive: tar.gz, member: zellij, url: "https://github.com/zellij-org/zellij/releases/download/v0.44.1/zellij-aarch64-unknown-linux-musl.tar.gz", sha256: 6f028bb569d29be968c961249c5f80d5336ad4ad4b3cd79af8e32afab57b0948 }
+    helix:
+      displayName: Helix
+      version: 25.07.1
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 30
+      versionProbe: { command: hx, args: [--version], parser: second-token }
+      removeGuidance:
+        windows: "Remove-Item -Recurse -Force -LiteralPath $HOME\\.local\\share\\helix; Remove-Item -LiteralPath $HOME\\.local\\bin\\hx.exe"
+        posix: "rm -rf -- $HOME/.local/share/helix && rm -f -- $HOME/.local/bin/hx"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: helix-25.07.1-x86_64-windows/hx.exe, url: "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-windows.zip", sha256: 5c8325ced8bacd8418d62706f669e96d9c3578a9237526e34d546900cbc049b6 }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.xz, member: helix-25.07.1-x86_64-macos/hx, url: "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-macos.tar.xz", sha256: 84dc32d617d28d32f4aa21e3aafac47bd715d1154aeb977697d4d60b887b7103 }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.xz, member: helix-25.07.1-aarch64-macos/hx, url: "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-aarch64-macos.tar.xz", sha256: 00b1651b4fdbbe0a2ae981c8e76b858bd26a7c33f5b3583f3b6bb9137d54f1ff }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.xz, member: helix-25.07.1-x86_64-linux/hx, url: "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-x86_64-linux.tar.xz", sha256: 3f08e63ecd388fff657ad39722f88bb03dcf326f1f2da2700d99e1dc40ab2e8b }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.xz, member: helix-25.07.1-aarch64-linux/hx, url: "https://github.com/helix-editor/helix/releases/download/25.07.1/helix-25.07.1-aarch64-linux.tar.xz", sha256: ce23fa8d395e633e3e54c052012f11965d91d8d5c2bfa659685f50430b4f8175 }
+        linux-x86_64-musl: { strategy: native-package, package: helix, packageVersion: 25.07.1-r0, manager: apk }
+        linux-aarch64-musl: { strategy: native-package, package: helix, packageVersion: 25.07.1-r0, manager: apk }
+    starship:
+      displayName: Starship
+      version: 1.25.1
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 40
+      versionProbe: { command: starship, args: [--version], parser: second-token }
+      removeGuidance:
+        windows: "Remove-Item -LiteralPath $HOME\\.local\\bin\\starship.exe"
+        posix: "rm -f -- $HOME/.local/bin/starship"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: starship.exe, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-pc-windows-msvc.zip", sha256: a07cf3e428afab09324e510fb786041ebcc491a68b1ca6fba044c5a461f9b017 }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-apple-darwin.tar.gz", sha256: f86fbe7a3b9f262bcf34ca61e9e996243da511c5500dcd81a1e4daa542869276 }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-apple-darwin.tar.gz", sha256: 1062a2363489b9335529b83204472f02633c08fc3609f1b325be5eba36feb631 }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-unknown-linux-gnu.tar.gz", sha256: 4488c11ca632327d1f1f16fb2f102c0646094c35479cd5435991385da43c61ac }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-unknown-linux-musl.tar.gz", sha256: 01517aab398959ea9ea73bdb4f032ea4dbb51dff5c8e5eb05b4a1b9b7ab872b8 }
+        linux-x86_64-musl: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-unknown-linux-musl.tar.gz", sha256: c6ddd3ecb9c0071a2ad38d98cee748160066b7c4f197421268058f4a5d6f8504 }
+        linux-aarch64-musl: { strategy: official-artifact, archive: tar.gz, member: starship, url: "https://github.com/starship/starship/releases/download/v1.25.1/starship-aarch64-unknown-linux-musl.tar.gz", sha256: 01517aab398959ea9ea73bdb4f032ea4dbb51dff5c8e5eb05b4a1b9b7ab872b8 }
+    zoxide:
+      displayName: zoxide
+      version: 0.9.9
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 50
+      versionProbe: { command: zoxide, args: [--version], parser: second-token }
+      removeGuidance:
+        windows: "Remove-Item -LiteralPath $HOME\\.local\\bin\\zoxide.exe"
+        posix: "rm -f -- $HOME/.local/bin/zoxide"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: zoxide.exe, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-x86_64-pc-windows-msvc.zip", sha256: 5af00d0916f05631e3030537289eac56605e7c1733318c4d525c8e847f12496d }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-x86_64-apple-darwin.tar.gz", sha256: 364249cff18354397c72ebb6b8f7358404c051c486e0f2f7a46e36c86c16f8c7 }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-aarch64-apple-darwin.tar.gz", sha256: 57e733d0436309dae2ed97e46bba43937209395298e1d88812d4e893900cb40a }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-x86_64-unknown-linux-musl.tar.gz", sha256: 4ff057d3c4d957946937274c2b8be7af2a9bbae7f90a1b5e9baaa7cb65a20caa }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-aarch64-unknown-linux-musl.tar.gz", sha256: 96e6ea2e47a71db42cb7ad5a36e9209c8cb3708f8ae00f6945573d0d93315cb0 }
+        linux-x86_64-musl: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-x86_64-unknown-linux-musl.tar.gz", sha256: 4ff057d3c4d957946937274c2b8be7af2a9bbae7f90a1b5e9baaa7cb65a20caa }
+        linux-aarch64-musl: { strategy: official-artifact, archive: tar.gz, member: zoxide, url: "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-aarch64-unknown-linux-musl.tar.gz", sha256: 96e6ea2e47a71db42cb7ad5a36e9209c8cb3708f8ae00f6945573d0d93315cb0 }
+    fzf:
+      displayName: fzf
+      version: 0.74.1
+      kind: executable
+      roles: [server, workstation]
+      installOrder: 60
+      versionProbe: { command: fzf, args: [--version], parser: first-token }
+      removeGuidance:
+        windows: "Remove-Item -LiteralPath $HOME\\.local\\bin\\fzf.exe"
+        posix: "rm -f -- $HOME/.local/bin/fzf"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: zip, member: fzf.exe, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-windows_amd64.zip", sha256: d83a94a68a9203f6366754123c0e4d7a61e16be18a5d845f4838664b330c4f5f }
+        darwin-x86_64: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-darwin_amd64.tar.gz", sha256: 642f29fb2800690385efb176a209b14d9f593795f0f70ee12c919ee15472e439 }
+        darwin-aarch64: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-darwin_arm64.tar.gz", sha256: 849d1d33b050f04dd6b765665e417da151b0e4654dbed8f55c60fd8e23f3ba20 }
+        linux-x86_64-gnu: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-linux_amd64.tar.gz", sha256: df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b }
+        linux-aarch64-gnu: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-linux_arm64.tar.gz", sha256: f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183 }
+        linux-x86_64-musl: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-linux_amd64.tar.gz", sha256: df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b }
+        linux-aarch64-musl: { strategy: official-artifact, archive: tar.gz, member: fzf, url: "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-linux_arm64.tar.gz", sha256: f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183 }
+    wezterm:
+      displayName: WezTerm
+      version: 20240203-110809-5046fc22
+      kind: executable
+      roles: [workstation]
+      installOrder: 70
+      versionProbe: { command: wezterm, args: [--version], parser: second-token }
+      removeGuidance:
+        windows: "Open Windows Settings > Apps > Installed apps and uninstall WezTerm"
+        posix: "See https://wezterm.org/install/macos.html"
+      targets:
+        windows-x86_64: { strategy: official-artifact, archive: exe, member: WezTerm-20240203-110809-5046fc22-setup.exe, url: "https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/WezTerm-20240203-110809-5046fc22-setup.exe", sha256: 35a6ec0eff7aa65e3987f14223bfb9df831eaab2964eb441ed6cad4356d252ff }
+        darwin-x86_64: { strategy: official-artifact, archive: zip, member: WezTerm-macos-20240203-110809-5046fc22/WezTerm.app, url: "https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/WezTerm-macos-20240203-110809-5046fc22.zip", sha256: e77388cad55f2e9da95a220a89206a6c58f865874a629b7c3ea3c162f5692224 }
+        darwin-aarch64: { strategy: official-artifact, archive: zip, member: WezTerm-macos-20240203-110809-5046fc22/WezTerm.app, url: "https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/WezTerm-macos-20240203-110809-5046fc22.zip", sha256: e77388cad55f2e9da95a220a89206a6c58f865874a629b7c3ea3c162f5692224 }
+        linux-x86_64-gnu: &weztermLinuxException
+          strategy: platform-exception
+          exception: { reason: "WezTerm remains distribution-managed on Linux workstations", scope: "linux workstation", compatibleVersion: "distribution-supported", evidence: ["https://wezterm.org/install/linux.html"], removalCondition: "Upstream publishes one portable verified artifact for every supported Linux target" }
+        linux-aarch64-gnu: *weztermLinuxException
+        linux-x86_64-musl: *weztermLinuxException
+        linux-aarch64-musl: *weztermLinuxException
+    jetbrainsmono-nerd-font:
+      displayName: JetBrainsMono Nerd Font
+      version: 3.4.0
+      kind: font
+      roles: [workstation]
+      installOrder: 80
+      fontProbe: { family: "JetBrainsMono Nerd Font", styles: [Regular, Bold, Italic, BoldItalic] }
+      removeGuidance:
+        windows: "Open Windows Settings > Personalization > Fonts and remove JetBrainsMono Nerd Font 3.4.0"
+        posix: "rm -rf -- $HOME/.local/share/fonts/JetBrainsMonoNerdFont"
+      targets:
+        windows-x86_64: &jetbrainsTarget
+          strategy: official-artifact
+          archive: zip
+          url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
+          sha256: 76f05ff3ace48a464a6ca57977998784ff7bdbb65a6d915d7e401cd3927c493c
+          members: [JetBrainsMonoNerdFont-Regular.ttf, JetBrainsMonoNerdFont-Bold.ttf, JetBrainsMonoNerdFont-Italic.ttf, JetBrainsMonoNerdFont-BoldItalic.ttf]
+          installedFiles: { JetBrainsMonoNerdFont-Regular.ttf: 0ec29a68b539ece7078fc714cebff0c0accb2f4948f8f7963d9f5e86633b12d9, JetBrainsMonoNerdFont-Bold.ttf: e82e27a7f37c9a0a13cc4e417503a149c6a0280586930772d2ebed803159c864, JetBrainsMonoNerdFont-Italic.ttf: 981133a258ef4c62769a7a7214a4b455ac1c63923784a70f50c48977b67f7025, JetBrainsMonoNerdFont-BoldItalic.ttf: 961222be7bce59f310b41a3e158368d5ea22a47a0ac31defd57caac9b9e82cb0 }
+        darwin-x86_64: *jetbrainsTarget
+        darwin-aarch64: *jetbrainsTarget
+        linux-x86_64-gnu: *jetbrainsTarget
+        linux-aarch64-gnu: *jetbrainsTarget
+        linux-x86_64-musl: *jetbrainsTarget
+        linux-aarch64-musl: *jetbrainsTarget

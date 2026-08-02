@@ -1,0 +1,9 @@
+[
+  { "target": "windows-x86_64", "os": "windows", "arch": "x86_64", "libc": "none", "roles": ["server", "workstation"] },
+  { "target": "darwin-x86_64", "os": "darwin", "arch": "x86_64", "libc": "none", "roles": ["server", "workstation"] },
+  { "target": "darwin-aarch64", "os": "darwin", "arch": "aarch64", "libc": "none", "roles": ["server", "workstation"] },
+  { "target": "linux-x86_64-gnu", "os": "linux", "arch": "x86_64", "libc": "gnu", "roles": ["server", "workstation"] },
+  { "target": "linux-aarch64-gnu", "os": "linux", "arch": "aarch64", "libc": "gnu", "roles": ["server", "workstation"] },
+  { "target": "linux-x86_64-musl", "os": "linux", "arch": "x86_64", "libc": "musl", "roles": ["server", "workstation"] },
+  { "target": "linux-aarch64-musl", "os": "linux", "arch": "aarch64", "libc": "musl", "roles": ["server", "workstation"] }
+]
