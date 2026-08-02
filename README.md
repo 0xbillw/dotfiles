@@ -167,8 +167,8 @@ from that file; they do not maintain independent version constants.
 | Nushell | `0.114.1` | workstation and server |
 | Zellij | `0.44.1` | workstation and server |
 | Helix | `25.07.1` | workstation and server |
-| Starship | `1.25.1` | workstation and server |
-| zoxide | `0.9.9` | workstation and server |
+| Starship | `1.26.0` | workstation and server |
+| zoxide | `0.10.0` | workstation and server |
 | fzf | `0.74.1` | workstation and server |
 | WezTerm | `20240203-110809-5046fc22` | workstation only |
 | JetBrainsMono Nerd Font | `3.4.0` | workstation only |

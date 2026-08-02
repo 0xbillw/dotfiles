@@ -8,7 +8,7 @@ to the platform under test and record untested cells explicitly.
 1. Confirm only one committed version declaration exists for each managed dependency:
 
    ```powershell
-   rg -n "0\.114\.1|0\.44\.1|25\.07\.1|1\.25\.1|0\.9\.9|0\.74\.1|20240203-110809-5046fc22|3\.4\.0" .
+   rg -n "0\.114\.1|0\.44\.1|25\.07\.1|1\.26\.0|0\.10\.0|0\.74\.1|20240203-110809-5046fc22|3\.4\.0" .
    ```
 
    Expected: authoritative values appear in `.chezmoidata/dependencies.yaml`; documentation may quote

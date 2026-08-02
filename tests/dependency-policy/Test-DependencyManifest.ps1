@@ -59,6 +59,8 @@ foreach ($name in $expectedDependencies) {
     Assert-Policy ($name -in $dependencyNames) "missing dependency '$name'."
 }
 Assert-Policy ($targetNames.Count -eq 7) 'the declared support boundary must contain seven normalized targets.'
+Assert-Policy ($policy.dependencies.starship.version -eq '1.26.0') 'Starship compatibility anchor must be 1.26.0.'
+Assert-Policy ($policy.dependencies.zoxide.version -eq '0.10.0') 'zoxide compatibility anchor must be 0.10.0.'
 
 $orders = @()
 foreach ($property in $policy.dependencies.PSObject.Properties) {
