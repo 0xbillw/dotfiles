@@ -97,9 +97,15 @@ implementation preserves unrelated installations, never removes duplicate comman
 stages and checks every applicable payload before managed mutation, records retain consent outside the
 repository, and reports unsupported targets or partial failures explicitly.
 
-The Windows audit found exact Nushell, Zellij, WezTerm, and user-font files; missing Helix/zoxide/fzf;
-a newer Starship; and conflicting system-level font copies. Reconciliation was deliberately not
-applied because it requires an interactive downgrade/retain decision and user review of duplicate
-fonts. macOS, apt, dnf, apk, and Linux arm64 evidence remains deferred in the platform evidence files.
-Do not represent this branch as fully cross-platform verified until those commands are executed and
-the evidence statuses are updated.
+The Windows owner completed interactive reconciliation, retained Starship 1.26.0 and zoxide 0.10.0,
+removed the conflicting system-wide JetBrainsMono Nerd Font installation through Windows settings,
+and then completed `chezmoi apply`. A basic DNF-based smoke test also found no issue. Those two newer
+tool versions are now the declared policy; a post-update unchanged Windows apply and an upgraded DNF
+apply remain to be recorded. macOS, apt, apk, and Linux arm64 evidence remains deferred in the
+platform evidence files. Do not represent this branch as fully cross-platform verified until those
+commands are executed and the evidence statuses are updated.
+
+The 2026-08-02 upgrade validation confirmed all fourteen Starship/zoxide target URLs and SHA-256
+digests against official GitHub release metadata. Both manifest validators, both policy-upgrade
+checks, all Windows/POSIX reconciliation contracts, and all three platform installer fixture
+contracts pass with Starship 1.26.0 and zoxide 0.10.0.

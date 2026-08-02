@@ -1,9 +1,11 @@
 # dnf and apk evidence
 
-**Status**: Deferred — no representative dnf/glibc or apk/musl host is available in this session.
+**Status**: DNF/glibc received a basic manual smoke test; the version-upgrade reapply and apk/musl
+target remain deferred.
 
-Run the active-path/version and second-apply commands from `apt-glibc.md` on one supported dnf server
-and one Alpine server. Also record:
+No issue was observed during a basic apply on a DNF-based system before the Starship 1.26.0 and
+zoxide 0.10.0 policy promotion. Re-run the active-path/version and second-apply commands from
+`apt-glibc.md` after this upgrade. Run the same commands on one Alpine server. Also record:
 
 ```sh
 . /etc/os-release

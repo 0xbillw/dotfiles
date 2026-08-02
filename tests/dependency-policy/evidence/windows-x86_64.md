@@ -1,26 +1,25 @@
 # Windows x86_64 evidence
 
-**Date**: 2026-08-01  
+**Date**: 2026-08-02
 **Host**: Windows 11 x86_64 development workstation  
-**Status**: Active-state audit completed; reconciliation apply deferred
+**Status**: Interactive reconciliation completed; policy-upgrade reapply pending
 
 | Dependency | Declared | Active observation |
 |---|---:|---|
 | Nushell | `0.114.1` | `0.114.1` at `C:\Program Files\nu\bin\nu.exe` |
 | Zellij | `0.44.1` | `0.44.1` at `%LOCALAPPDATA%\Zellij\zellij.exe` |
 | Helix | `25.07.1` | Missing |
-| Starship | `1.25.1` | Newer `1.26.0` at `C:\Program Files\starship\bin\starship.exe` |
-| zoxide | `0.9.9` | Missing |
+| Starship | `1.26.0` | `1.26.0` observed during interactive reconciliation |
+| zoxide | `0.10.0` | `0.10.0` observed during interactive reconciliation |
 | fzf | `0.74.1` | Missing |
 | WezTerm | `20240203-110809-5046fc22` | Exact at `C:\Program Files\WezTerm\wezterm.exe` |
-| JetBrainsMono Nerd Font | `3.4.0` | Four exact user-font hashes plus conflicting system-font copies |
+| JetBrainsMono Nerd Font | `3.4.0` | Four exact user-font hashes; conflicting system installation removed manually |
 
-The four files in `%LOCALAPPDATA%\Microsoft\Windows\Fonts` match the manifest. Files with the same
-names under `%WINDIR%\Fonts` have different hashes, so the installer now reports
-`duplicate-active-path` and blocks before mutation rather than guessing which font WezTerm selects.
+The four files in `%LOCALAPPDATA%\Microsoft\Windows\Fonts` match the manifest. A previous system-wide
+copy with different hashes correctly produced `duplicate-active-path`; the owner removed that copy
+through Windows font settings, and the next apply completed.
 
-The actual reconciliation apply is deferred because it would ask whether to downgrade Starship and
-would install missing tools. The owner must run interactive `chezmoi apply --verbose`, resolve the
-duplicate font installations in Windows Fonts settings, and record a second unchanged apply before
-this target is marked fully verified. Server-role rendering is covered statically but not applied to
-this workstation.
+The initial apply retained Starship 1.26.0 and zoxide 0.10.0 as newer unsupported versions. These
+versions are now the declared compatibility targets. Run `chezmoi apply --verbose` again after this
+policy update and record an unchanged second apply before marking the target fully verified.
+Server-role rendering is covered statically but not applied to this workstation.

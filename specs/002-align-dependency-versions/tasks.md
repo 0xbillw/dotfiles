@@ -150,6 +150,13 @@ cross-platform claims.
 - [X] T044 [P] Execute one supported Linux arm64 target and record machine identity, active versions/paths, idempotency, and every deferred arm64 target in `tests/dependency-policy/evidence/linux-arm64.md`
 - [X] T045 Consolidate T040-T044 and perform final idempotency, safe-path, user-state preservation, checksum, active-PATH/font, unsupported-target, disabled-management, and constitution review in `tests/dependency-policy/README.md`
 
+## Phase 7: Validated Dependency Upgrades
+
+**Purpose**: Apply the deliberate upgrade workflow after real-machine validation finds a newer
+compatible release set.
+
+- [X] T046 [US3] Upgrade Starship to `1.26.0` and zoxide to `0.10.0` for every supported target in `.chezmoidata/dependencies.yaml`, add compatibility-anchor assertions to both manifest validators, update version documentation and Windows/DNF evidence, and run the complete dependency-policy verification suite
+
 ---
 
 ## Dependencies & Execution Order

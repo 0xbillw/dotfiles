@@ -22,6 +22,10 @@ records=$(
     "$chezmoi_bin" -S "$repo_root" execute-template \
         '{{ range $id, $dep := .dependencyPolicy.dependencies }}{{ $id }}|{{ $dep.version }}|{{ len $dep.targets }}|{{ len $dep.roles }}{{ "\n" }}{{ end }}'
 )
+starship_version=$(printf '%s\n' "$records" | awk -F '|' '$1 == "starship" { print $2 }')
+zoxide_version=$(printf '%s\n' "$records" | awk -F '|' '$1 == "zoxide" { print $2 }')
+[ "$starship_version" = "1.26.0" ] || fail "Starship compatibility anchor must be 1.26.0."
+[ "$zoxide_version" = "0.10.0" ] || fail "zoxide compatibility anchor must be 0.10.0."
 printf '%s\n' "$records" | while IFS='|' read -r id version targets roles; do
     [ -n "$id" ] || continue
     [ -n "$version" ] || fail "$id has no version."

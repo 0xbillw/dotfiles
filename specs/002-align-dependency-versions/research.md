@@ -26,15 +26,16 @@ reviewable declaration can drive Windows, macOS, and Linux without a new runtime
 | Nushell | `0.114.1` | all roles | exact native package if available; official artifact otherwise |
 | Zellij | `0.44.1` | all roles | exact native package if available; official artifact otherwise |
 | Helix | `25.07.1` | all roles | exact native package if available; official artifact otherwise |
-| Starship | `1.25.1` | all roles | exact native package if available; official artifact otherwise |
-| zoxide | `0.9.9` | all roles | exact native package if available; official artifact otherwise |
+| Starship | `1.26.0` | all roles | exact native package if available; official artifact otherwise |
+| zoxide | `0.10.0` | all roles | exact native package if available; official artifact otherwise |
 | fzf | `0.74.1` | all roles | exact native package if available; official artifact otherwise |
 | WezTerm | `20240203-110809-5046fc22` | workstation | exact native package if available; official artifact otherwise |
 | JetBrainsMono Nerd Font | `3.4.0` | workstation | exact native package if available; official release archive otherwise |
 
 **Rationale**: Nu and Zellij preserve already tested compatibility anchors. Helix, zoxide, fzf, and
 Nerd Fonts use verified upstream releases already represented in the repository's installation paths.
-Starship uses the latest upstream release verified during research rather than the unpinned installer.
+Starship and zoxide use upstream releases verified during implementation and real-machine follow-up
+rather than an unpinned installer.
 WezTerm uses its current stable release identifier. Every future change is a compatibility update, not
 an implicit package-manager upgrade.
 
@@ -52,6 +53,15 @@ an implicit package-manager upgrade.
 [fzf releases](https://github.com/junegunn/fzf/releases),
 [WezTerm releases](https://github.com/wezterm/wezterm/releases), and
 [Nerd Fonts releases](https://github.com/ryanoasis/nerd-fonts/releases).
+
+### 2026-08-02 compatibility update
+
+Starship 1.26.0 adds prompt modules and fixes without changing the shell initialization interface used
+by this repository. zoxide 0.10.0 keeps `zoxide init nushell` and improves its Nushell export behavior;
+the existing generated integration remains compatible. Official GitHub release metadata provides all
+artifact names and SHA-256 digests used by the seven declared targets. Windows interactive apply and
+a basic DNF smoke test found no configuration regression; macOS, apk, and Linux ARM64 revalidation
+remain deferred and are not represented as verified.
 
 ## Decision 3: Package-manager first means exact-version capable first
 
