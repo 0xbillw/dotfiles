@@ -58,3 +58,5 @@ finally {
 }
 
 Write-Host 'Policy upgrade mutation checks passed.'
+# Expected mutation failures must not leak into a direct CI invocation.
+$global:LASTEXITCODE = 0

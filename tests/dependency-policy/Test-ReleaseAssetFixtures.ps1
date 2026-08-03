@@ -24,3 +24,5 @@ foreach ($case in @(
 }
 
 Write-Host 'Release asset verifier fixture contracts passed.'
+# Expected child-process failures must not leak into the CI step result.
+$global:LASTEXITCODE = 0

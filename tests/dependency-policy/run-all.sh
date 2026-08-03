@@ -31,8 +31,8 @@ if [ "${DEPENDENCY_POLICY_SKIP_QUALITY:-0}" != 1 ]; then
     git -C "$repo_root" diff --check
     if [ -n "$base_ref" ]; then
         git -C "$repo_root" rev-parse --verify "$base_ref" >/dev/null
-        git -C "$repo_root" diff --check "$base_ref...HEAD"
-        if git -C "$repo_root" diff --unified=0 "$base_ref...HEAD" -- . \
+        git -C "$repo_root" diff --check "$base_ref"
+        if git -C "$repo_root" diff --unified=0 "$base_ref" -- . \
             ':(exclude)*.png' ':(exclude)*.jpg' ':(exclude)*.zip' |
             awk '/^\+[^+]/{ if ($0 ~ /[^\001-\177]/) { print; found=1 } } END { exit found ? 0 : 1 }' >"${TMPDIR:-/tmp}/dotfiles-non-english-$$"
         then
