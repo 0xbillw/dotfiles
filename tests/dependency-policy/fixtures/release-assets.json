@@ -1,0 +1,44 @@
+{
+  "scenarios": {
+    "matching": {
+      "targets": [
+        { "dependency": "demo", "target": "windows-x86_64", "url": "https://github.com/example/demo/releases/download/v1.0.0/demo.zip", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+        { "dependency": "demo-copy", "target": "windows-x86_64", "url": "https://github.com/example/demo/releases/download/v1.0.0/demo.zip", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+      ],
+      "releases": {
+        "example/demo@v1.0.0": [
+          { "browser_download_url": "https://github.com/example/demo/releases/download/v1.0.0/demo.zip", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+        ]
+      }
+    },
+    "missing-asset": {
+      "targets": [
+        { "dependency": "demo", "target": "linux-x86_64", "url": "https://github.com/example/demo/releases/download/v1.0.0/missing.tar.gz", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+      ],
+      "releases": { "example/demo@v1.0.0": [] }
+    },
+    "digest-mismatch": {
+      "targets": [
+        { "dependency": "demo", "target": "linux-x86_64", "url": "https://github.com/example/demo/releases/download/v1.0.0/demo.tar.gz", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+      ],
+      "releases": {
+        "example/demo@v1.0.0": [
+          { "browser_download_url": "https://github.com/example/demo/releases/download/v1.0.0/demo.tar.gz", "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+        ]
+      }
+    },
+    "unsupported-host": {
+      "targets": [
+        { "dependency": "demo", "target": "linux-x86_64", "url": "https://downloads.example.com/demo.tar.gz", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+      ],
+      "releases": {}
+    },
+    "upstream-unavailable": {
+      "targets": [
+        { "dependency": "demo", "target": "linux-x86_64", "url": "https://github.com/example/demo/releases/download/v1.0.0/demo.tar.gz", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+      ],
+      "unavailable": ["example/demo@v1.0.0"],
+      "releases": {}
+    }
+  }
+}
