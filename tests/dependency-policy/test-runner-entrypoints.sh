@@ -10,6 +10,11 @@ done
 grep -F 'Dependency policy suite passed:' "$runner" >/dev/null
 grep -F 'DEPENDENCY_POLICY_TEST_DIRECTORY' "$runner" >/dev/null
 grep -F 'chezmoi apply' "$runner" >/dev/null
+grep -F 'CHECK_CONSUMERS=1 sh "$script_dir/test-dependency-manifest.sh"' \
+    "$script_dir/test-policy-upgrade.sh" >/dev/null || {
+    printf '%s\n' 'Nested POSIX tests must use an explicit sh interpreter.' >&2
+    exit 1
+}
 temporary=${TMPDIR:-/tmp}/dotfiles-runner-$$
 mkdir -p "$temporary"
 output=${TMPDIR:-/tmp}/dotfiles-runner-output-$$
