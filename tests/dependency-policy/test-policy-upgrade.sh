@@ -5,7 +5,7 @@ script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
 chezmoi_bin=${CHEZMOI:-chezmoi}
 
-CHECK_CONSUMERS=1 "$script_dir/test-dependency-manifest.sh"
+CHECK_CONSUMERS=1 sh "$script_dir/test-dependency-manifest.sh"
 
 for installer in \
     run_onchange_before_10-install-packages.cmd.tmpl \
