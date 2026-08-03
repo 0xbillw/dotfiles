@@ -3,6 +3,24 @@
 These fixtures validate the dependency compatibility manifest and rendered installers without
 installing software on the development host.
 
+## Aggregate entrypoints
+
+Use `run-all.ps1` on PowerShell and `run-all.sh` on POSIX systems. Both runners use explicit inventories,
+name each test before execution, stop at the first failure, and reject missing expected tests. Pass a
+pull request base revision to enable changed-line checks. Generated state belongs only in disposable
+temporary directories; the suite produces no committed reports and never invokes production
+`chezmoi apply`.
+
+Release metadata tests group repeated GitHub URLs, query each owner/repository/tag once, and compare
+the declared SHA-256 with the upstream asset digest. `fixtures/release-assets.json` provides offline
+matching and failure cases for the verifier itself.
+
+## CI red baseline
+
+On 2026-08-02, the new entrypoint contract failed because `run-all.ps1` did not exist, and the workflow
+contract failed because `.github/workflows/dependency-policy.yml` did not exist. After implementation,
+both missing-artifact assertions and the release metadata fixture contracts pass.
+
 ## Safety boundary
 
 - Tests must use a disposable directory supplied through `DOTFILES_TEST_ROOT`.
@@ -109,3 +127,11 @@ The 2026-08-02 upgrade validation confirmed all fourteen Starship/zoxide target 
 digests against official GitHub release metadata. Both manifest validators, both policy-upgrade
 checks, all Windows/POSIX reconciliation contracts, and all three platform installer fixture
 contracts pass with Starship 1.26.0 and zoxide 0.10.0.
+
+## CI evidence boundary
+
+The five required GitHub checks provide static and contract evidence for Windows x86_64, Linux
+x86_64, macOS arm64, macOS x86_64, release metadata, and repository quality. They do not perform a
+clean installation. Existing Windows reconciliation and basic DNF observations remain manual evidence;
+the policy-upgrade second apply is still pending. apt, apk, Linux arm64, Windows server-role application,
+and both macOS workstation architectures remain deferred exactly as recorded in `evidence/`.

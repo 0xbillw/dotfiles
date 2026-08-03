@@ -228,6 +228,43 @@ the family name alone is not sufficient.
 An exception must declare its rationale, exact target scope, compatible version/range, verification
 evidence, and objective removal condition. Incomplete exceptions fail manifest validation.
 
+### Dependency policy CI
+
+Pull requests targeting `main`, pushes to `main`, and manual runs execute the same committed validation
+entrypoints available to maintainers:
+
+```powershell
+./tests/dependency-policy/run-all.ps1 -RepositoryRoot $PWD
+```
+
+```sh
+sh tests/dependency-policy/run-all.sh "$PWD"
+```
+
+The required branch-protection checks are:
+
+```text
+dependency-policy / Windows x86_64
+dependency-policy / Linux x86_64
+dependency-policy / macOS arm64
+dependency-policy / macOS x86_64
+dependency-policy / Release assets and repository quality
+```
+
+After the workflow has run once on `main`, add these five names to the default branch ruleset or to
+`Settings > Branches > Branch protection rules > Require status checks to pass before merging`.
+
+These jobs use read-only permissions and no repository secrets. They validate manifest structure,
+version propagation, reconciliation and installer contracts, managed targets, changed-line language,
+whitespace, syntax available on each runner, and official GitHub release asset digests. A failure names
+the platform or test; reproduce it with the corresponding entrypoint and the pull request base SHA.
+
+A green workflow is static and contract evidence only. It does not prove a clean installation or apply
+the dotfiles to any workstation or server. DNF, apk, Linux arm64, Windows workstation, and macOS
+workstation installation evidence remains recorded separately under
+`tests/dependency-policy/evidence/`; targets without completed evidence remain deferred. Automated
+clean-install smoke tests require a later feature using disposable environments.
+
 ## Font installation notes
 
 For JetBrainsMono Nerd Font, a terminal setup normally needs these four faces:
