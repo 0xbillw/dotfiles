@@ -28,3 +28,5 @@ try {
 }
 finally { Remove-Item -LiteralPath $temporary -Recurse -Force }
 Write-Host 'PowerShell aggregate runner contract passed.'
+# Expected child-process failures must not leak into the CI step result.
+$global:LASTEXITCODE = 0

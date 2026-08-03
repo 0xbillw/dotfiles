@@ -16,19 +16,27 @@ installation smoke tests for a later, independently specified feature.
 ## Technical Context
 
 **Language/Version**: PowerShell 7 on CI with Windows PowerShell 5.1 compatibility where required;
-POSIX `sh`; GitHub Actions workflow YAML; chezmoi 2.71.1 as the pinned render prerequisite  
+POSIX `sh`; GitHub Actions workflow YAML; chezmoi 2.71.1 as the pinned render prerequisite
+
 **Primary Dependencies**: existing dependency-policy tests, git, chezmoi, GitHub REST release metadata,
-standard hosted runner utilities  
-**Storage**: committed workflow, runner scripts, test reports in job logs; no persistent runtime state  
+standard hosted runner utilities
+
+**Storage**: committed workflow, runner scripts, test reports in job logs; no persistent runtime state
+
 **Testing**: PowerShell/POSIX entrypoint self-tests, manifest and mutation tests, platform contract
-tests, template parsing, quality checks, workflow matrix execution  
+tests, template parsing, quality checks, workflow matrix execution
+
 **Target Platform**: Windows x86_64, Ubuntu x86_64, macOS arm64, macOS x86_64 for required CI; DNF,
-Alpine, Linux arm64, and workstation installation smoke tests deferred to phase two  
-**Project Type**: cross-platform dotfiles repository automation  
+Alpine, Linux arm64, and workstation installation smoke tests deferred to phase two
+
+**Project Type**: cross-platform dotfiles repository automation
+
 **Performance Goals**: every required platform job completes within 15 minutes; duplicate pull-request
-runs for the same branch are cancelled  
+runs for the same branch are cancelled
+
 **Constraints**: read-only repository token, no secrets for pull requests, no `pull_request_target`, no
-persistent self-hosted runner for untrusted code, no automatic `chezmoi apply` on user machines  
+persistent self-hosted runner for untrusted code, no automatic `chezmoi apply` on user machines
+
 **Scale/Scope**: two test entrypoints, nine current dependency-policy tests, four required runner
 environments, eight dependencies, seven normalized artifact targets
 

@@ -44,9 +44,9 @@ if (-not $SkipQuality) {
     if ($BaseRef) {
         & git -C $RepositoryRoot rev-parse --verify $BaseRef *> $null
         if ($LASTEXITCODE -ne 0) { throw "Comparison base '$BaseRef' was not found." }
-        & git -C $RepositoryRoot diff --check "$BaseRef...HEAD"
+        & git -C $RepositoryRoot diff --check $BaseRef
         if ($LASTEXITCODE -ne 0) { throw 'Changed-range whitespace validation failed.' }
-        $added = & git -C $RepositoryRoot diff --unified=0 "$BaseRef...HEAD" -- . ':(exclude)*.png' ':(exclude)*.jpg' ':(exclude)*.zip'
+        $added = & git -C $RepositoryRoot diff --unified=0 $BaseRef -- . ':(exclude)*.png' ':(exclude)*.jpg' ':(exclude)*.zip'
         $nonEnglish = @($added | Where-Object { $_ -match '^\+(?!\+\+)' -and $_ -match '[^\x00-\x7F]' })
         if ($nonEnglish.Count -gt 0) { throw "Non-English added lines detected:`n$($nonEnglish -join "`n")" }
     }

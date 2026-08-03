@@ -15,8 +15,8 @@ function Fail-Asset([string]$Class, [string]$Message) { throw "Release asset val
 if ($BaseRef -and -not $FixturePath -and -not $PolicyJsonPath) {
     & git -C $RepositoryRoot rev-parse --verify $BaseRef *> $null
     if ($LASTEXITCODE -ne 0) { Fail-Asset 'comparison-base' "Revision '$BaseRef' was not found." }
-    $changed = @(& git -C $RepositoryRoot diff --name-only "$BaseRef...HEAD" -- .chezmoidata/dependencies.yaml)
-    if ($LASTEXITCODE -ne 0) { Fail-Asset 'comparison-base' "Could not compare '$BaseRef...HEAD'." }
+    $changed = @(& git -C $RepositoryRoot diff --name-only $BaseRef -- .chezmoidata/dependencies.yaml)
+    if ($LASTEXITCODE -ne 0) { Fail-Asset 'comparison-base' "Could not compare '$BaseRef' with the working tree." }
     if ($changed.Count -eq 0) {
         Write-Host 'Release asset verification skipped: dependency manifest is unchanged.'
         exit 0
