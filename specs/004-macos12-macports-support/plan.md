@@ -16,22 +16,22 @@ mini validation without claiming unperformed platform verification.
 ## Technical Context
 
 **Language/Version**: chezmoi templates; POSIX `sh`; YAML dependency data; Markdown documentation;
-PowerShell and shell-based policy tests where existing test harnesses require them  
+PowerShell and shell-based policy tests where existing test harnesses require them
 **Primary Dependencies**: chezmoi template data/functions, macOS `sw_vers` and `uname`, MacPorts `port`,
-existing official upstream release artifacts, POSIX archive/hash utilities, dependency-policy fixtures  
+existing official upstream release artifacts, POSIX archive/hash utilities, dependency-policy fixtures
 **Storage**: committed `.chezmoidata/dependencies.yaml`; generated shell configuration templates;
-machine-local dependency state under `${XDG_STATE_HOME:-$HOME/.local/state}`; committed evidence notes  
+machine-local dependency state under `${XDG_STATE_HOME:-$HOME/.local/state}`; committed evidence notes
 **Testing**: static/template checks on the development host; macOS installer fixtures for Monterey and
 newer macOS target selection; existing dependency-policy tests; real-machine validation on a macOS 12
-Monterey Mac mini when available  
+Monterey Mac mini when available
 **Target Platform**: macOS 12 Monterey x86_64 and arm64 Mac mini workstation/server roles, with regression
-coverage for existing newer macOS x86_64 and arm64 targets  
-**Project Type**: cross-platform dotfiles and dependency bootstrap scripts  
+coverage for existing newer macOS x86_64 and arm64 targets
+**Project Type**: cross-platform dotfiles and dependency bootstrap scripts
 **Performance Goals**: second apply performs no dependency mutation; prerequisite failure stops before
-network or installation work; target detection completes before dependency preflight  
+network or installation work; target detection completes before dependency preflight
 **Constraints**: official artifact compatibility remains preferred, MacPorts is a legacy macOS path rather
 than the new default for every macOS release, no silent version substitution, no automatic removal of
-Homebrew/manual installations, no GUI/font installation for server role, English-only repository content  
+Homebrew/manual installations, no GUI/font installation for server role, English-only repository content
 **Scale/Scope**: existing eight managed dependencies, one additional legacy macOS version category,
 two macOS CPU architectures, two roles, existing macOS installer and shared POSIX reconciliation logic
 
